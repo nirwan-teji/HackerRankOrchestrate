@@ -1,4 +1,5 @@
 """CSV I/O with strict schema validation (wrong columns/rows = silent score loss)."""
+from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd

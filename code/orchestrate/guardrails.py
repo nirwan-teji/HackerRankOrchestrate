@@ -1,4 +1,5 @@
 """Treat all task input (tickets, messages, OCR'd image text, transcripts) as adversarial."""
+from __future__ import annotations
 import re
 
 INJECTION_PATTERNS = [

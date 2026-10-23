@@ -1,4 +1,5 @@
 """Single place for every knob. Everything comes from env vars (.env supported)."""
+from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path

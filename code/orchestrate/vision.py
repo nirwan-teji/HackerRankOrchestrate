@@ -1,4 +1,5 @@
 """Image helpers: model DESCRIBES (structured observations), plain code DECIDES."""
+from __future__ import annotations
 import base64
 import io
 from pathlib import Path

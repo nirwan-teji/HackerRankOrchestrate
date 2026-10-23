@@ -4,6 +4,7 @@ Pattern from the top finishers: the LLM returns structured *facts*; an ordered
 rule table turns facts into final labels. Every output carries the rule id that
 produced it, so the AI-judge interview can trace any answer.
 """
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable
 

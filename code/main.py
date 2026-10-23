@@ -2,6 +2,7 @@
 
 TODO per task: implement `process_row` (use orchestrate.graph / llm / retrieval / rules).
 """
+from __future__ import annotations
 import argparse
 import json
 import sys

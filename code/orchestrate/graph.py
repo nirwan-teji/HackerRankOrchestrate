@@ -2,6 +2,7 @@
 
 Replace the node bodies per task; keep the shape (each node small and testable).
 """
+from __future__ import annotations
 from typing import Any, TypedDict
 
 from langgraph.graph import END, StateGraph

@@ -3,6 +3,7 @@
 Features: init_chat_model factory, on-disk response cache (determinism + free
 re-runs), RPM throttling, retries, token/cost accounting for the ops report.
 """
+from __future__ import annotations
 import hashlib
 import json
 import threading

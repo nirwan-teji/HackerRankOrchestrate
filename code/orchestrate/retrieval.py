@@ -1,4 +1,5 @@
 """Hybrid local retrieval (BM25 + optional LLM-free rerank) for corpus/RAG tasks."""
+from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
