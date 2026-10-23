@@ -23,5 +23,5 @@ def test_rules_precedence():
 
 
 def test_bm25():
-    idx = Index([Chunk("a", "reset password email", {}), Chunk("b", "visa card dispute", {})])
+    idx = Index([Chunk("a", "reset password email", {}), Chunk("b", "visa card dispute", {}), Chunk("c", "claude workspace billing", {})])
     assert idx.search("card dispute", 1)[0][0].source == "b"
