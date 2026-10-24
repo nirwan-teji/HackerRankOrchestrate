@@ -14,6 +14,7 @@ from typing import Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 import os
+import sys
 
 from . import review as review_mod
 from .engine import Auditor, CaseResult
@@ -62,6 +63,8 @@ def build_graph(aud: Auditor):
             else:
                 budget["used"] += 1
                 res.review = review_mod.review_case(aud, res)
+                if budget["used"] % 10 == 0 or budget["used"] == 1:  # an hour-long run must show it is alive
+                    print(f"   reviewer: {budget['used']} cases reviewed (latest {res.case_id}: {res.review.verdict})", file=sys.stderr, flush=True)
         return {"result": res}
 
     def not_applicable(s: AuditState) -> AuditState:

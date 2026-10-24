@@ -32,6 +32,15 @@ def say(msg: str) -> None:
     print(msg, flush=True)
 
 
+def stream(cmd: list[str], env: dict) -> int:
+    """Run a step and show its output live (a long LLM step must not look frozen)."""
+    p = subprocess.Popen(cmd, cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+    for line in p.stdout:
+        if line.strip() and "LangChainPendingDeprecationWarning" not in line and "JsonPlusSerializer" not in line:
+            print("   " + line.rstrip(), flush=True)
+    return p.wait()
+
+
 def sample_score() -> dict:
     from ghost import intent
     from ghost.run import run
@@ -112,10 +121,12 @@ def main() -> int:
 
     say("== 4. full run + reports (this is the run that produces output.csv)")
     env = {**os.environ, **chosen}
-    r = subprocess.run([sys.executable, str(ROOT / "code" / "main.py")], cwd=ROOT, env=env, capture_output=True, text=True)
-    say("   " + "\n   ".join(l for l in r.stdout.splitlines() if l.strip()))
-    if r.returncode:
-        say(r.stderr[-2000:]); return r.returncode
+    if env.get("GHOST_LLM_REVIEW") == "1":
+        say("   reviewer is on: expect roughly an hour at ~7K tokens/min; progress prints every 10 cases. Interrupting is safe:")
+        say("   every answer is cached, so re-running resumes where it stopped.")
+    rc = stream([sys.executable, str(ROOT / "code" / "main.py")], env)
+    if rc:
+        return rc
     r = subprocess.run([sys.executable, str(ROOT / "code" / "evaluation" / "run_eval.py")], cwd=ROOT, env=env, capture_output=True, text=True)
     say("   " + r.stdout.strip().splitlines()[-1] if r.stdout.strip() else r.stderr[-1500:])
     if r.returncode:
