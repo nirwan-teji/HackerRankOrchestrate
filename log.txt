@@ -300,3 +300,23 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T21:05:00Z] Full self-test passes; model overruled the positional tie-break -> add a measurable A/B
+
+User Prompt (verbatim, secrets redacted):
+[screenshot of the terminal] pip install pypdf (was missing locally); python3 scripts/llm_selftest.py: [1/4] OK; [2/4] structured output OK (mode: ?); [3/4] intent 4/4 correct; [4/4] link adjudication returned two groups: cases 527/529 -> outcome applied-llm-pairing (model swapped the positional pairing of account_3693/account_4063), cases 497/512 -> agreed-with-positional; usage: model_calls 2, cache_hits 6, input_tokens 1652, output_tokens 1837.
+
+Agent Response Summary:
+All four self-test checks now run against real Groq. The model overruled the positional pairing in one hidden group, which cannot be judged without ground truth, so added scripts/llm_ab.py to measure model vs positional on the five ambiguity groups that contain public sample cases (8 scorable links; positional gets 7/8). The script refuses to give a verdict if every call failed and warns that 8 links is a small sample. Noted: "mode: ?" in check 2 is cosmetic (answer came from the on-disk cache, so no call set the mode); pypdf was missing locally because requirements had not been re-installed.
+
+Actions:
+* scripts/llm_ab.py (new)
+* ran it offline: no key -> graceful fallback, identical sample score
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
