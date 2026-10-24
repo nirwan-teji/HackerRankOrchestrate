@@ -36,7 +36,7 @@ classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> pl
    opinion (`GHOST_LLM_INTENT=1`) for unsure texts only. A `CLASSIFY_REQUEST ... non-deletion` activity corroborates.
 2. **Identity** (`identity.py`): request e-mail -> user via current identity + `user_audit_log` (old/new e-mail, phone,
    e-mail hash); every identifier the person ever had is searched for.
-3. **Evidence** (`logparse.py`, `evidence.py`, `documents.py`, `vision.py`): every file type (7 log dialects, SQL replicas via
+3. **Evidence** (`logparse.py`, `evidence.py`, `documents.py`, `vision.py`): every file type (6 log dialects, SQL replicas via
    sqlite, JSON bundles/exports, text handovers, PDFs, OCR'd screenshots) becomes uniform observations
    `(time, resource, category, state, identifiers)`. Trace ids join `*_started` with `*_completed` log lines.
 4. **Linking** (`engine.py`, `linking.py`): resources are tied to the subject by direct identifiers; identity-less records

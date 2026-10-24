@@ -84,8 +84,8 @@ def main() -> int:
     say("== 1. preflight")
     from ghost.data import Dataset
 
-    Dataset.load(ROOT / "dataset")  # exits with a clear message if any evidence file is missing
-    say("   dataset complete (all 95 evidence files present)")
+    ds = Dataset.load(ROOT / "dataset")  # exits with a clear message if any evidence file is missing
+    say(f"   dataset complete (all {len(ds.manifest)} evidence files present)")
     if "--llm" in ARGS:
         from orchestrate.config import get_settings
 

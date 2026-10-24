@@ -858,3 +858,23 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T18:13:11Z] Built the AI-interview study guide (PDF)
+
+User Prompt (verbatim, secrets redacted):
+Now go ahead and make a comprehensive report (pdf ) that help.me ace the AI interview everything I should know everything why how when what everything about things in my code also why not go through whatsa asked generally in these interviews so you can make me well versed for it
+
+Agent Response Summary:
+Wrote docs/interview_guide.html and rendered docs/interview_guide.pdf (24 pages) with headless Chromium. It covers the pitch, the data and policy, the architecture and module map, each pipeline stage, ordering, the LLM layers with their measured gates, LLM engineering, evaluation, weak spots with honest answers, a 45-question bank, what these interviews test, a cheat sheet of numbers, and a 30-minute plan. All numbers come from the repo and the user's run. While gathering facts I fixed two small inaccuracies: final_run.py hard-coded "95 evidence files" (the manifest has 94) and the README said 7 log dialects (there are 6). I noted that three orchestrate/ modules are unused scaffold, so the user does not overclaim them.
+
+Actions:
+* Created docs/interview_guide.html and docs/interview_guide.pdf; edited scripts/final_run.py and code/README.md
+* Rendered with Playwright Chromium; inspected pages as images
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
