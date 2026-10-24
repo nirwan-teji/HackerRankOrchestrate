@@ -743,3 +743,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T17:40:09Z] Unfinished merge (MERGE_HEAD exists) on user's machine
+
+User Prompt (verbatim, secrets redacted):
+[screenshot: git pull --no-rebase -> "You have not concluded your merge (MERGE_HEAD exists)"; push rejected]
+
+Agent Response Summary:
+An earlier pull started a merge that was never committed. The editor was probably closed without saving, or a file conflicted. Advised running git status first. If every conflict is resolved, finish with git commit --no-edit and push. If log.txt conflicts, keep the remote copy, which has the complete transcript, and finish the merge. Any other unmerged file should be pasted back to me. Then re-package before uploading.
+
+Actions:
+* none (diagnosis from screenshot)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
