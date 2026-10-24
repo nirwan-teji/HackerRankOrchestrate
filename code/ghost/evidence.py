@@ -31,15 +31,40 @@ def _clean(v):
     return "" if s in ("no direct identifier", "[redacted]", "none", "nan") else s
 
 
+def flat(d: dict) -> dict:
+    """Merge one level of nested record dicts (e.g. search `document`, account `profile`) into the parent."""
+    out = dict(d)
+    for k, v in d.items():
+        if isinstance(v, dict) and k in ("document", "profile", "record", "subject"):
+            out.update({kk: vv for kk, vv in v.items() if kk not in out or out[kk] in (None, "")})
+    return out
+
+
 def idents_of(d: dict, keys=IDENT_KEYS) -> frozenset:
-    return frozenset(x for x in (_clean(d.get(k)) for k in keys) if x)
+    d = flat(d)
+    return frozenset(x for x in (_clean(d.get(k)) for k in keys) if x) | text_idents(d)
+
+
+PHONE_RX = re.compile(r"\+\d[\d ()\-]{6,}\d")
+
+
+def text_idents(d: dict) -> frozenset:
+    """Emails/phones embedded in free-text fields (message bodies, excerpts)."""
+    out = set()
+    for k in ("message_text", "message_excerpt", "excerpt", "body", "note", "notes"):
+        v = d.get(k)
+        if isinstance(v, str):
+            out |= {norm(e) for e in EMAIL_RX.findall(v)} | {norm(p) for p in PHONE_RX.findall(v)}
+    return frozenset(out)
 
 
 def has_direct(d: dict) -> bool:
-    return any(_clean(d.get(k)) for k in DIRECT_KEYS)
+    d = flat(d)
+    return any(_clean(d.get(k)) for k in DIRECT_KEYS) or bool(text_idents(d))
 
 
 def has_ref_or_direct(d: dict) -> bool:
+    d = flat(d)
     return has_direct(d) or bool(_clean(d.get("customer_reference")) or _clean(d.get("subject_reference")))
 
 
@@ -85,8 +110,8 @@ def parse_log_file(path, fid) -> list[Obs]:
         elif ev == "index_query_completed":
             add("PRESENT" if ln.get("result") == "hit" else "ABSENT")
         elif ev in ("analytics_profile_read_completed", "analytics_profile_read", "contact_lookup_completed"):
-            if ev == "contact_lookup_completed":
-                add("EXPOSED", extra_ids=[_clean(ln.get("correlation_key"))])
+            if ev == "contact_lookup_completed":  # marketing contact profile (opt-in record) -> always deleted
+                out.append(Obs(fid, t, rid, "PRESENT", cat="MARKETING_PROFILE", idents=frozenset(ids | {_clean(ln.get("correlation_key"))}), kind="lookup", attrs={"event": ev}))
             elif ln.get("direct_identifiers") == "0" or not has_ref_or_direct(ln):
                 add("MASKED")
             else:
@@ -102,11 +127,11 @@ def parse_log_file(path, fid) -> list[Obs]:
                            kind="lookup", attrs={"event": ev, "file": ln.get("file", "")}))
         elif ev == "message_read":
             add("MASKED" if "redacted" in ln.get("message_text", "").lower() else "EXPOSED")
-        elif ev in ("contact_query_completed",):
-            add("PRESENT")
+        elif ev == "contact_query_completed":  # legacy contact index = secondary identifier (always deleted)
+            out.append(Obs(fid, t, rid, "PRESENT", cat="SECONDARY_IDENTIFIER", idents=frozenset(ids), kind="lookup", attrs={"event": ev}))
         elif ev == "deletion_marker_check":
             if ln.get("marker_found", "").lower() == "false":
-                add("PRESENT", last_write=ln.get("last_write", ""))
+                out.append(Obs(fid, t, rid, "PRESENT", cat="SECONDARY_IDENTIFIER", idents=frozenset(ids), kind="lookup", attrs={"event": ev, "last_write": ln.get("last_write", "")}))
         elif ev in ("connector_config_read_completed", "connector_config_loaded", "connector_heartbeat"):
             on = _b(ln.get("enabled")) and ln.get("scheduler_registered", "true") != "false"
             add("ENABLED" if on else "DISABLED", connector=ln.get("connector_name", ""))
@@ -133,13 +158,13 @@ def parse_sql_file(path, fid, captured_at) -> tuple[list[Obs], dict]:
     con.row_factory = sqlite3.Row
     con.executescript(Path(path).read_text(errors="ignore"))
     obs: list[Obs] = []
-    scope = {"systems": set(), "rids": set()}
+    scope = {"systems": {}, "rids": set()}
     names = [r[0] for r in con.execute("select name from sqlite_master where type='table'")]
     for tab in names:
         rows = [dict(r) for r in con.execute(f"select * from {tab}")]
         if tab == "snapshot_scope":
             for r in rows:
-                scope["systems"].add(r["origin_system"])
+                scope["systems"][r["origin_system"]] = r["captured_at"]
             continue
         for r in rows:
             rid = r.get("resource_id", "")
@@ -147,37 +172,37 @@ def parse_sql_file(path, fid, captured_at) -> tuple[list[Obs], dict]:
             if "record_json" in r:
                 j = json.loads(r["record_json"])
                 col, sysid = r["collection_name"], r["origin_system"]
-                scope["systems"].add(sysid)
+                scope["systems"][sysid] = captured_at
                 obs.extend(_collection_record(fid, captured_at, sysid, col, j, base))
                 continue
             ref = _clean(r.get("customer_reference") or r.get("user_id"))
             if tab.startswith("customer_profiles"):
-                scope["systems"].add("account_service")
+                scope["systems"]["account_service"] = captured_at
                 obs.append(Obs(fid, captured_at, rid, "PRESENT", idents=idents_of({**r, "customer_reference": ref}), attrs=base))
             elif tab == "customer_search_documents":
-                scope["systems"].add("search_service")
+                scope["systems"]["search_service"] = captured_at
                 obs.append(Obs(fid, captured_at, rid, "PRESENT", idents=idents_of(r), attrs=base))
             elif tab == "search_documents_primary":
-                scope["systems"].add("search_service")
+                scope["systems"]["search_service"] = captured_at
                 src = r.get("source_resource_id", "")
                 obs.append(Obs(fid, captured_at, rid, "PRESENT", idents=idents_of(r) | ({src} if src else set()), attrs={**base, "source_resource_id": src}))
             elif tab == "customer_analytics_profiles":
-                scope["systems"].add("analytics_platform")
+                scope["systems"]["analytics_platform"] = captured_at
                 obs.append(Obs(fid, captured_at, rid, "EXPOSED" if has_ref_or_direct(r) else "MASKED", idents=idents_of(r), attrs=base))
             elif tab == "support_records":
-                scope["systems"].add("support_platform")
+                scope["systems"]["support_platform"] = captured_at
                 obs.append(Obs(fid, captured_at, rid, "EXPOSED" if has_direct(r) else "MASKED", idents=idents_of(r), attrs={**base, "excerpt": r.get("message_excerpt", "")}))
             elif tab == "customer_exports":
-                scope["systems"].add("export_service")
+                scope["systems"]["export_service"] = captured_at
                 obs.append(Obs(fid, captured_at, rid, "PRESENT", idents=idents_of(r), attrs=base))
             elif tab == "connector_subscriptions":
-                scope["systems"].add("integration_service")
+                scope["systems"]["integration_service"] = captured_at
                 obs.append(Obs(fid, captured_at, rid, _bool_state(r["enabled"], "ENABLED", "DISABLED"), idents=idents_of(r), attrs={**base, "connector": r.get("connector_name", "")}))
             elif tab == "backup_restore_entries":
-                scope["systems"].add("backup_service")
+                scope["systems"]["backup_service"] = captured_at
                 obs.append(Obs(fid, captured_at, rid, _bool_state(r["restore_allowed"], "RESTORABLE", "BLOCKED"), idents=idents_of(r), attrs=base))
             elif tab == "security_audit_records":
-                scope["systems"].add("security_service")
+                scope["systems"]["security_service"] = captured_at
                 obs.append(Obs(fid, captured_at, rid, "PRESENT", idents=idents_of(r), attrs={**base, "retention_until": r.get("retention_until", "")}))
     for o in obs:
         scope["rids"].add(o.rid)
@@ -225,11 +250,11 @@ def _lookup_record(fid, d, tkey) -> Obs | None:
 def parse_json_file(path, fid, captured_at) -> tuple[list[Obs], dict]:
     j = json.loads(Path(path).read_text())
     obs: list[Obs] = []
-    scope = {"systems": set(), "rids": set()}
+    scope = {"systems": {}, "rids": set()}
     if "snapshots" in j:  # records-assurance bundle
         for s in j["snapshots"]:
             t = s.get("captured_at", captured_at)
-            scope["systems"].add(s["data_store"])
+            scope["systems"][s["data_store"]] = t
             for r in s["records"]:
                 if s["collection"] == "operational_record_history":
                     o = _lookup_record(fid, r, "recorded_at")
@@ -322,19 +347,19 @@ def load_all(dataset_dir, manifest: list[dict]) -> tuple[list[Obs], dict[str, di
         p, fid, cap = d / row["file_path"], row["file_id"], row["captured_at"]
         ext = p.suffix.lower()
         if ext == ".log":
-            o, sc = parse_log_file(p, fid), {"systems": set(), "rids": set()}
+            o, sc = parse_log_file(p, fid), {"systems": {}, "rids": set()}
         elif ext == ".sql":
             o, sc = parse_sql_file(p, fid, cap)
         elif ext == ".json":
             o, sc = parse_json_file(p, fid, cap)
         elif ext == ".txt":
-            o, sc = parse_txt_file(p, fid, cap), {"systems": set(), "rids": set()}
+            o, sc = parse_txt_file(p, fid, cap), {"systems": {}, "rids": set()}
         elif ext == ".pdf":
-            o, sc = parse_pdf_file(p, fid, cap), {"systems": set(), "rids": set()}
+            o, sc = parse_pdf_file(p, fid, cap), {"systems": {}, "rids": set()}
         elif ext == ".png":
             from .vision import observe_image
 
-            o, sc = observe_image(p, fid, cap), {"systems": set(), "rids": set()}
+            o, sc = observe_image(p, fid, cap), {"systems": {}, "rids": set()}
         else:
             continue
         for x in o:

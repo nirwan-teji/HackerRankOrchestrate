@@ -22,12 +22,8 @@ def observe_document(text: str, fid: str, captured_at: str) -> list[Obs]:
     refs = set(USERREF_RX.findall(text))
     ids = frozenset(emails | phones | refs)
 
-    # retention register rows: "ORD-20264118 | user_08 | ... | Retain until 04 May 2033"
-    rows = re.findall(r"ORD-(\d{4})(\d{4})\s*\|\s*(user_\d+)\s*\|.*?Retain until ([^|]+)", text)
-    for _, num, ref, until in rows:
-        out.append(Obs(fid, captured_at, f"legal_hold_{int(num)}", "PRESENT", idents=frozenset({ref}),
-                       attrs={"retention_until": _date(until), "doc": "retention_register"}, kind="record"))
-    if rows:
+    # retention registers list orders and user refs but carry no resource ids -> nothing citable, skip
+    if re.search(r"ORD-\d{8}\s*\|\s*user_\d+", text):
         return out
 
     # compliance journal: audit event reference with subject + retain-until
