@@ -524,3 +524,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-25T02:30:00Z] Restart on the new code; cached reviews carry over
+
+User Prompt (verbatim, secrets redacted):
+It's the older run only shall I keep that or close it and start your new push.?
+
+Agent Response Summary:
+Recommended stopping the old run and starting the pushed version: the reviewer prompt and plan payload are unchanged between the two commits, so every review already completed is a cache hit for the new run, while the new run re-measures the contaminated reviewer gate, writes LF output and streams progress. Gave the exact stop / discard-regenerated-files / pull / re-run sequence.
+
+Actions:
+* none (guidance)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
