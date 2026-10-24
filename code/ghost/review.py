@@ -114,6 +114,10 @@ def review_case(aud: "Auditor", res: "CaseResult") -> Review:
     try:
         out = ask(SYSTEM, "<case>\n" + json.dumps(_payload(aud, res), indent=1, sort_keys=True) + "\n</case>", schema=Verdict)
     except Exception as e:
+        from orchestrate.llm import is_daily_limit
+
+        if is_daily_limit(e):  # quota spent: not an error in the plan, and the cache lets a later run resume here
+            return Review(res.case_id, "skipped", reason="provider daily token limit reached; re-run later to resume")
         return Review(res.case_id, "error", reason=f"{type(e).__name__}: {str(e)[:120]}")
     issues = [{"kind": i.kind if i.kind in KINDS else "other", "resource_id": i.resource_id, "explanation": i.explanation[:300]}
               for i in out.issues if i.resource_id in known][:5]  # a flag about a resource we never listed is discarded

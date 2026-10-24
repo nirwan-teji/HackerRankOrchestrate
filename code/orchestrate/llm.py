@@ -142,16 +142,42 @@ def _cache_path(key: str):
     return d / f"{key}.json"
 
 
+class DailyLimitReached(RuntimeError):
+    """The provider's per-day quota is spent. Retrying cannot help for hours, so every later call fails fast."""
+
+
+_DAILY = {"hit": False, "detail": ""}
+
+
+def is_daily_limit(e: BaseException) -> bool:
+    msg = str(e).lower()
+    return isinstance(e, DailyLimitReached) or any(k in msg for k in ("tokens per day", "requests per day", "(tpd)", "(rpd)"))
+
+
 def _transient(e: BaseException) -> bool:
-    """Retry rate limits, timeouts and 5xx; never retry a 400-class request error (it will fail identically)."""
+    """Retry per-minute rate limits, timeouts and 5xx; never retry a 400-class error or a spent DAILY quota."""
+    if is_daily_limit(e):
+        return False
     code = getattr(e, "status_code", None) or getattr(getattr(e, "response", None), "status_code", None)
     if isinstance(code, int):
         return code in (408, 409, 429) or code >= 500
     return isinstance(e, (TimeoutError, ConnectionError)) or type(e).__name__ in ("APIConnectionError", "APITimeoutError", "RateLimitError")
 
 
-@retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=2, min=2, max=60), retry=retry_if_exception(_transient), reraise=True)
 def _invoke(runnable, messages):
+    if _DAILY["hit"]:  # circuit breaker: once the daily quota is gone, do not send (or retry) anything else
+        raise DailyLimitReached(_DAILY["detail"])
+    try:
+        return _invoke_once(runnable, messages)
+    except Exception as e:
+        if is_daily_limit(e):
+            _DAILY.update(hit=True, detail=str(e)[:300])
+            raise DailyLimitReached(_DAILY["detail"]) from e
+        raise
+
+
+@retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=2, min=2, max=60), retry=retry_if_exception(_transient), reraise=True)
+def _invoke_once(runnable, messages):
     s = get_settings()
     _throttle(s.rpm)
     need = _estimate_tokens(messages)
@@ -198,14 +224,20 @@ def _structured(llm, schema, messages, model_name: str):
                 _WORKING[model_name] = method
                 return r["parsed"]
             last = ValueError(f"{method}: reply did not parse")
+        except DailyLimitReached:
+            raise
         except Exception as e:  # unsupported mode, 400, schema rejection ... -> try the next one
             last = e
     try:  # last resort: ask for JSON in plain text and parse it ourselves
+        if isinstance(last, DailyLimitReached):
+            raise last
         msg = _invoke(llm, hinted)
         USAGE.add(msg)
         out = _parse_text_json(msg.content, schema)
         _WORKING[model_name] = "plain_json"
         return out
+    except DailyLimitReached:
+        raise
     except Exception as e:
         raise RuntimeError(f"structured output failed for {model_name} in every mode; last error: {last or e}") from e
 

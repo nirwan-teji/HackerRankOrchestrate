@@ -26,7 +26,7 @@ Final full-dataset run that produced `output.csv` (518 requests).
 | average tokens per request | 0.00 |
 | estimated total cost (USD) | 0.0000 |
 | estimated cost per request (USD) | 0.000000 |
-| wall-clock runtime for 518 cases | 3.7 s |
+| wall-clock runtime for 518 cases | 3.4 s |
 | peak RSS | 85 MB |
 
 Per-model totals: no model was called, so every per-model and overall total is 0.
@@ -38,6 +38,8 @@ Set `PRICE_IN_PER_MTOK` / `PRICE_OUT_PER_MTOK` (USD per million tokens) before r
 ### Rate limits observed on the free tier (measured, not assumed)
 
 The Groq console for `openai/gpt-oss-120b` showed a limit of about **30 requests/min** and about **8K tokens/min**. Our calls are small in requests but large in tokens (`gpt-oss` spends many hidden reasoning tokens: the measured reviewer check used 15,109 input + 12,222 output tokens for 10 calls, ~2.7K tokens per call). The token limit is therefore the binding one, and unthrottled runs hit HTTP 429. `LLM_TPM` (default off, 7000 in `.env.example`) enables a sliding 60-second token budget that estimates each call before sending it and records what it actually used; `LLM_RPM` caps requests; 400-class errors are never retried, 429s are retried with backoff; every response is cached on disk so an interrupted run resumes where it stopped.
+
+The same console lists the per-day limits for this model: **1K requests/day and 200K tokens/day**. A complete reviewer pass (~350K tokens) therefore does not fit in one day. A 429 that names a per-day quota is treated as non-retryable: a circuit breaker stops all further calls in the run, the remaining reviews are recorded as `skipped` (not as errors, and not as passes - the reviewer gate refuses to accept skipped reviews), and the disk cache lets a later run resume.
 
 | optional LLM stage | calls | est. tokens | est. time at ~7K tokens/min |
 |---|---|---|---|

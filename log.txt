@@ -543,3 +543,25 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-25T03:00:00Z] Daily token quota (200K) is smaller than a full review; fail fast instead of retrying for hours
+
+User Prompt (verbatim, secrets redacted):
+[screenshot of console.groq.com Settings -> Limits, Chat Completions: openai/gpt-oss-120b 30 requests/min, 1K requests/day, 8K tokens/min, 200K tokens/day; openai/gpt-oss-20b and qwen/qwen3.8-27b the same; other models listed]
+Will there be problems 🥲
+
+Agent Response Summary:
+Yes: a full reviewer pass is ~159 calls x ~2.2K tokens = ~350K tokens against a 200K tokens/day limit, part of which was already spent today. Worse, my retry policy treated every 429 as transient, so after the quota ran out each remaining case would have been retried five times with backoff, wasting hours. Added a daily-quota circuit breaker (per-day 429s are non-retryable, one failure stops all further calls), recorded remaining reviews as "skipped" rather than errors, made the reviewer gate refuse a measurement that contains skipped reviews, documented the per-day limits and a GHOST_REVIEW_MAX sizing rule, and added tests. output.csv is unaffected because the reviewer cannot change it.
+
+Actions:
+* code/orchestrate/llm.py (DailyLimitReached, breaker, non-retryable per-day 429), code/ghost/review.py (skipped on quota)
+* scripts/final_run.py (gate rejects skipped reviews; shows the cap), .env.example, code/evaluation/run_eval.py
+* code/tests/test_ghost.py (2 tests; 36 passing)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

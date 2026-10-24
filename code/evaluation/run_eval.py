@@ -242,6 +242,10 @@ def main():
          "60-second token budget that estimates each call before sending it and records what it actually used; `LLM_RPM` caps "
          "requests; 400-class errors are never retried, 429s are retried with backoff; every response is cached on disk so an "
          "interrupted run resumes where it stopped.", "",
+         "The same console lists the per-day limits for this model: **1K requests/day and 200K tokens/day**. A complete reviewer "
+         "pass (~350K tokens) therefore does not fit in one day. A 429 that names a per-day quota is treated as non-retryable: a "
+         "circuit breaker stops all further calls in the run, the remaining reviews are recorded as `skipped` (not as errors, and "
+         "not as passes - the reviewer gate refuses to accept skipped reviews), and the disk cache lets a later run resume.", "",
          "| optional LLM stage | calls | est. tokens | est. time at ~7K tokens/min |", "|---|---|---|---|",
          f"| reviewer of risky plans | {in_scope_n} | ~{in_scope_n * 2.7:,.0f}K | ~{in_scope_n * 2.7 / 7:,.0f} min |",
          f"| intent second opinion, rule-unsure texts only (default) | {n_unsure} | ~{n_unsure}K | <1 min |",

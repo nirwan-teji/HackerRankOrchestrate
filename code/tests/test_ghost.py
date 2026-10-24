@@ -336,3 +336,36 @@ def test_output_uses_lf_line_endings_like_the_template(tmp_path):
     out = tmp_path / "o.csv"
     run(ds, "sample_deletion_requests.csv", out)
     assert b"\r\n" not in out.read_bytes()
+
+
+# ---- daily quota: fail fast, never retry for hours ------------------------------------------------------------------
+def test_daily_limit_trips_the_breaker_without_retries(monkeypatch):
+    llm_mod = pytest.importorskip("orchestrate.llm")
+    monkeypatch.setitem(llm_mod._DAILY, "hit", False)
+    calls = {"n": 0}
+
+    class TPD(Exception):
+        status_code = 429
+
+    class R:
+        def invoke(self, m):
+            calls["n"] += 1
+            raise TPD("Rate limit reached for model `openai/gpt-oss-120b` on tokens per day (TPD): Limit 200000, Used 199500")
+
+    with pytest.raises(llm_mod.DailyLimitReached):
+        llm_mod._invoke(R(), [])
+    assert calls["n"] == 1                       # not retried 5 times with backoff
+    with pytest.raises(llm_mod.DailyLimitReached):
+        llm_mod._invoke(R(), [])
+    assert calls["n"] == 1                       # breaker open: nothing else is sent
+    monkeypatch.setitem(llm_mod._DAILY, "hit", False)
+
+
+def test_per_minute_429_is_still_retried():
+    llm_mod = pytest.importorskip("orchestrate.llm")
+
+    class TPM(Exception):
+        status_code = 429
+
+    assert llm_mod._transient(TPM("Rate limit reached ... on tokens per minute (TPM): Limit 8000"))
+    assert not llm_mod._transient(TPM("Rate limit reached ... on tokens per day (TPD): Limit 200000"))

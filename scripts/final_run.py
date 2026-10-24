@@ -67,6 +67,8 @@ def reviewer_gate(max_false_alarm_rate: float = 0.2) -> tuple[bool, str]:
     out = review.review_all(aud, todo)
     if any(v.verdict == "error" for v in out.values()):
         return False, "model calls failed: " + next(v.reason for v in out.values() if v.verdict == "error")[:90]
+    if any(v.verdict == "skipped" for v in out.values()):  # unmeasured is not the same as no false alarms
+        return False, "daily token limit reached before the gate finished; re-run tomorrow (cached reviews are kept)"
     right = [c for c in out if c not in KNOWN_WRONG]
     fa = sum(out[c].verdict == "concerns" for c in right)
     rate = fa / max(len(right), 1)
@@ -118,6 +120,8 @@ def main() -> int:
         if ok:
             os.environ["GHOST_LLM_REVIEW"] = "1"
             chosen["GHOST_LLM_REVIEW"] = "1"
+            cap = os.getenv("GHOST_REVIEW_MAX", "0")
+            say(f"   review cap GHOST_REVIEW_MAX={cap} ({'all risky cases' if cap in ('', '0') else cap + ' cases'}); a spent daily quota marks the rest 'skipped', it does not fail the run")
 
     say("== 4. full run + reports (this is the run that produces output.csv)")
     env = {**os.environ, **chosen}
