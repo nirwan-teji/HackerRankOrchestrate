@@ -197,3 +197,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T18:20:00Z] Deterministic is repeatable, not guaranteed correct
+
+User Prompt (verbatim, secrets redacted):
+Ohh so LLM only works when deterministic fails, is deterministic always determined to produce the correct answer.?
+
+Agent Response Summary:
+Explained that deterministic means repeatable, not correct; the engine can be confidently wrong (e.g. case_23 account tie-break, unobservable audit records), and the current LLM hook only fires on rule-flagged uncertainty so it would not catch confident errors. Proposed routing by uncertainty/ambiguity and evidence-based validation. No code changes this turn.
+
+Actions:
+* appended this entry to log.txt
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
