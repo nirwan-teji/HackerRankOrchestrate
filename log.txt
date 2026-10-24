@@ -606,3 +606,5 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+Note (appended 2026-10-24T16:50:00Z): the entry above "Why restart on the new code instead of waiting for 429s" carries a wrong timestamp (17:20:00Z); it was written at 2026-10-24T16:50:00Z. Left unedited per the append-only rule.
