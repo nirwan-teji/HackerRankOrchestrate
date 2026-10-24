@@ -264,3 +264,12 @@ def test_reviewer_scope_only_covers_uncertain_cases(monkeypatch):
     scoped = [c for c, r in results.items() if R.in_scope(aud, r)]
     assert 0 < len(scoped) < len(results) // 2  # risky subset, not everything
     assert all(any(x.via in ("guess", "convention", "alias") or x.state == "UNKNOWN" for x in results[c].resources) for c in scoped)
+
+
+def test_reviewer_prompt_names_every_category_the_engine_treats():
+    """The reviewer re-derives the plan from the prompt's specification, so it must never drift from steps.py."""
+    from ghost import review as R
+    from ghost.steps import ANON_CATS, DELETE_CATS, REDACT_CATS, RETAIN_CATS
+
+    for cat in DELETE_CATS | ANON_CATS | REDACT_CATS | RETAIN_CATS | {"BACKUP_ARCHIVE", "DATA_FLOW"}:
+        assert cat in R.SYSTEM, cat

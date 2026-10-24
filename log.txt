@@ -383,3 +383,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T23:20:00Z] Reviewer measured: 7/9 false alarms - cause was my prompt, fixed and to be re-measured
+
+User Prompt (verbatim, secrets redacted):
+[pasted terminal output of scripts/llm_review_check.py] 10 of 32 sample cases in scope (risky); concerns raised on case_03, 04, 25, 26, 27, 28, 29 (e.g. "account_7566 already compliant yet plan reports a verification finding", "analytics_901 MASKED does not satisfy ANONYMIZE ... no remediation step", "DATA_FLOW is not defined in the policy"); case_06, 08 and case_23 agreed. Summary: flagged on plans that match the key: 7 of 9 (false alarms); flagged on the 1 plan that differs from the key: 0. usage: model_calls 10, cache_hits 10, input_tokens 15109, output_tokens 12222, runtime_sec 130.7.
+
+Agent Response Summary:
+The reviewer failed its first measurement: 78% false alarms on correct plans and it missed the one wrong plan. Every false alarm traced to something my prompt omitted, not to a model weakness: (1) it treated VERIFY_* steps as findings, (2) it did not know MASKED is the compliant state for anonymise/redact categories, (3) the data-flow and restore rules live in problem_statement.md rather than deletion_rules.csv so it was never shown them. Rewrote the reviewer prompt as a full specification so the model independently re-derives the plan (an N-version check), added a test that the prompt names every category steps.py handles, and asked the user to re-run. Decision rule agreed in advance: if false alarms stay high, the reviewer stays off and is documented as a negative result like the link adjudicator.
+
+Actions:
+* code/ghost/review.py (SYSTEM prompt rewritten), code/tests/test_ghost.py (prompt/category drift test)
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
