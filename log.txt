@@ -627,3 +627,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T16:51:30Z] Reviewer token burn rate and remaining daily quota
+
+User Prompt (verbatim, secrets redacted):
+It reached 95.4k tokens (10.8 cached tokens idt they count) for 30 cases
+
+Agent Response Summary:
+Checked Groq's docs: cached tokens do not count toward rate limits, so about 84.6K of the 200K daily quota is used. That is at most about 2.8K tokens per review, above the 2.2K estimate because gpt-oss reasoning tokens count as output. About 115K remain, roughly 40 more reviews, so about 70 of the 159 risky cases get reviewed today and the rest are marked skipped once the user switches to the breaker code. output.csv is unaffected. The remaining reviews can resume from the cache on later days.
+
+Actions:
+* WebSearch: Groq prompt caching and rate limits
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
