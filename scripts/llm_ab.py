@@ -51,28 +51,33 @@ def main() -> int:
     if not groups:
         return 0
 
-    swaps, trail = adjudicate(base, groups)
-    if trail and trail[0].get("outcome", "").startswith("llm unavailable"):
-        print("LLM layer unavailable:", trail[0]); return 1
+    from ghost.adjudicate import VARIANTS
 
-    errors = [t for t in trail if str(t.get("outcome", "")).startswith(("error", "llm unavailable", "adjudication failed"))]
-    if len(errors) == len(trail):
-        print(f"every model call failed ({trail[0].get('outcome')}); fix the key/model with scripts/llm_selftest.py first - nothing to compare.")
-        return 1
-    pos_ok = llm_ok = n = 0
-    for g, t in zip(groups, trail):
-        proposed = t.get("proposed") or {}
-        print(f"group {g.prefix} {g.case_ids}  resources {g.resource_ids}  outcome: {t['outcome']}")
-        for cid in g.case_ids:
-            if cid not in truth:
-                continue
-            true_rid = next((r for r in g.resource_ids if r in truth[cid]), None)
-            pos, llm = g.chosen.get(cid), proposed.get(cid, g.chosen.get(cid))
-            n += 1
-            pos_ok += pos == true_rid
-            llm_ok += llm == true_rid
-            print(f"   {cid}: truth={true_rid}  positional={pos} {'ok' if pos == true_rid else 'WRONG'}  llm={llm} {'ok' if llm == true_rid else 'WRONG'}")
-    print(f"\nscorable links: {n}   positional correct: {pos_ok}   LLM correct: {llm_ok}")
+    results: dict[str, tuple[int, int]] = {}
+    for name, prompt in VARIANTS.items():
+        swaps, trail = adjudicate(base, groups, system=prompt)
+        if all(str(t.get("outcome", "")).startswith(("error", "llm unavailable", "adjudication failed")) for t in trail):
+            print(f"[{name}] every model call failed ({trail[0].get('outcome')}); run scripts/llm_selftest.py first")
+            return 1
+        pos_ok = llm_ok = n = 0
+        print(f"\n=== prompt variant: {name} ===")
+        for g, t in zip(groups, trail):
+            proposed = t.get("proposed") or {}
+            print(f"group {g.prefix} {g.case_ids}  outcome: {t['outcome']}")
+            for cid in g.case_ids:
+                if cid not in truth:
+                    continue
+                true_rid = next((r for r in g.resource_ids if r in truth[cid]), None)
+                pos, llm = g.chosen.get(cid), proposed.get(cid, g.chosen.get(cid))
+                n += 1; pos_ok += pos == true_rid; llm_ok += llm == true_rid
+                print(f"   {cid}: truth={true_rid}  positional={pos} {'ok' if pos == true_rid else 'WRONG'}  llm={llm} {'ok' if llm == true_rid else 'WRONG'}")
+        results[name] = (llm_ok, n)
+        print(f"-> {name}: LLM {llm_ok}/{n}   positional {pos_ok}/{n}")
+    print("\nSUMMARY (correct links out of 8):  positional", pos_ok, " | ", "  ".join(f"{k}: {v[0]}" for k, v in results.items()))
+    llm_ok = max(v[0] for v in results.values())
+    best = max(results, key=lambda k: results[k][0])
+    print("best prompt variant:", best)
+    os.environ["GHOST_ADJ_PROMPT"] = best
 
     off = sample_score(base, sample_ids, gold)
     os.environ["GHOST_LLM_LINKS"] = "1"

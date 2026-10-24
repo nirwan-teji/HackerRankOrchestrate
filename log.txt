@@ -341,3 +341,24 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T22:10:00Z] Why does the model swap the pairings? And an LLM-less product in an agents contest
+
+User Prompt (verbatim, secrets redacted):
+Don't you think it's a little weird that it's swapping the outcomes , also why would anyone look at a product without an LLM when the whole.competution is about building agents 🥲
+
+Agent Response Summary:
+Investigated the swapping instead of dismissing it. Not a code bug: reconstructed exactly what the model was shown (case facts with worker event times) and found my own system prompt told it to prefer pairings that keep operation times consistent with each case's proven records. That hint encodes a hypothesis the data does not follow, and the model obeyed it. A nearest-time heuristic computed in code does not reproduce the swaps either, so the model's reasoning is its own plausible-but-unsupported inference. Added three prompt variants (temporal-hint, neutral, keep-order) and made llm_ab.py score all of them so the question is answered by measurement. Addressed the second point candidly: the contest asks for an agent, the LLM currently owns only intent classification, and the honest options for more model use were laid out with their expected accuracy impact.
+
+Actions:
+* code/ghost/adjudicate.py (prompt VARIANTS, system override), scripts/llm_ab.py (scores every variant)
+* analysis scripts (nearest-time heuristic) run in the sandbox, not committed
+* pytest 21 passed
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
