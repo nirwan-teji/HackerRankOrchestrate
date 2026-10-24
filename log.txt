@@ -445,3 +445,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-25T01:00:00Z] final_run.py gate dropped the LLM intent layer (sample status 100% -> 93.75%)
+
+User Prompt (verbatim, secrets redacted):
+[screenshot of the terminal] git pull brought final_run.py; python scripts/final_run.py --llm --review: 1. preflight: dataset complete (all 95 evidence files present), LLM provider=groq model=openai/gpt-oss-120b tpm=7000 reasoning_effort=default; 2. baseline {'status_accuracy': 1.0, 'step_f1': 0.9896, 'exact_case_match': 0.9062}; 3. intent second opinion: {'status_accuracy': 0.9375, 'step_f1': 0.9598, 'exact_case_match': 0.8125} -> DROP; link adjudication: not offered; (run still in progress at the reviewer gate)
+
+Agent Response Summary:
+The evidence gate worked as designed: letting gpt-oss-120b decide the three rule-unsure request texts cost two sample statuses, so the layer was dropped automatically. Those three texts are follow-ups to an earlier deletion ("check the latest state and confirm the profile is gone"), which the model reads as a verification request while the answer key treats them as deletion context. Declined to tune the prompt: all three texts are sample cases, so tuning would only fit the answer key and would not change any of the 518 hidden cases, where the rules are confident on every text. Asked the user to paste the rest of the run (reviewer gate and final output).
+
+Actions:
+* none (analysis of the user's run)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
