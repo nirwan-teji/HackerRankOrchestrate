@@ -140,3 +140,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T17:40:00Z] Explained how output.csv is produced without a runtime model
+
+User Prompt (verbatim, secrets redacted):
+How did you get output.csv without any model.? 🥲
+
+Agent Response Summary:
+Explained that output.csv is produced by deterministic code (parsers, identity resolution, linking, policy rules) because the task data is structured, that the AI contribution so far was the development process plus an optional LLM intent layer, and that the contest framing may reward more visible model use. Offered concrete places to add model use. No code changes this turn.
+
+Actions:
+* appended this entry to log.txt
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
