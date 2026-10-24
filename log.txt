@@ -504,3 +504,23 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-25T02:20:00Z] Groq request log confirms the token budget is working
+
+User Prompt (verbatim, secrets redacted):
+[screenshot of console.groq.com Logs: requests from 22:03:10 to 22:09:22 on 24/10/2026, model openai/gpt-oss-120b, API key "HACKERRANK KEY", every row code 200, TTFT 0.29-0.79 s, latency 1.31-2.53 s, input tokens 1521-2261, output tokens 319-1014, arriving in groups of 2-3 about a minute apart]
+It's running okay I guess.?
+
+Agent Response Summary:
+Read the log: all 200s and no 429s, calls paced in groups of 2-3 per minute, which is the 7K tokens/minute budget doing its job; ~2.2K tokens per call, so the ~159-case reviewer pass takes about an hour as projected. No action needed; told the user what to check in the final output (reviewer gate denominator of 9, unchanged status counts) before uploading.
+
+Actions:
+* none (analysis of the user's console log)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
