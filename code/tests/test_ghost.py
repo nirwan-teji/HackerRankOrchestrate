@@ -273,3 +273,43 @@ def test_reviewer_prompt_names_every_category_the_engine_treats():
 
     for cat in DELETE_CATS | ANON_CATS | REDACT_CATS | RETAIN_CATS | {"BACKUP_ARCHIVE", "DATA_FLOW"}:
         assert cat in R.SYSTEM, cat
+
+
+# ---- token-per-minute limiter (Groq free tier: ~30 requests/min but only ~8K tokens/min) -------------------------------
+class _Clock:
+    def __init__(self): self.t = 1000.0
+    def now(self): return self.t
+    def sleep(self, s): self.t += s
+
+
+def test_token_window_blocks_until_the_minute_rolls_over():
+    llm_mod = pytest.importorskip("orchestrate.llm")
+    c = _Clock()
+    w = llm_mod.TokenWindow(now=c.now, sleep=c.sleep)
+    assert w.wait(3000, 8000) == 0           # empty window: free
+    w.add(3000); c.t += 10
+    assert w.wait(3000, 8000) == 0           # 6000 <= 8000
+    w.add(3000); c.t += 10
+    slept = w.wait(3000, 8000)               # 9000 > 8000: must wait for the oldest call (t=1000) to age out
+    assert 39.9 < slept < 41                 # 60 s after the first call, 20 s have passed
+    assert w.wait(3000, 8000) == 0
+
+
+def test_token_window_never_deadlocks_on_an_oversized_request():
+    llm_mod = pytest.importorskip("orchestrate.llm")
+    c = _Clock()
+    w = llm_mod.TokenWindow(now=c.now, sleep=c.sleep)
+    w.add(500)
+    assert w.wait(50_000, 8000) < 61         # a request bigger than the cap is waited for once, then allowed alone
+    assert w.wait(10, 0) == 0                # cap 0 disables the limiter
+
+
+def test_token_estimate_counts_text_images_and_expected_reply():
+    llm_mod = pytest.importorskip("orchestrate.llm")
+    from langchain_core.messages import HumanMessage, SystemMessage
+
+    out = llm_mod.get_settings().est_out_tokens
+    text = llm_mod._estimate_tokens([SystemMessage(content="x" * 3500), HumanMessage(content="y" * 700)])
+    assert text == int(4200 / 3.5) + out
+    img = llm_mod._estimate_tokens([HumanMessage(content=[{"type": "text", "text": ""}, {"type": "image_url", "image_url": {"url": "d"}}])])
+    assert img == 800 + out

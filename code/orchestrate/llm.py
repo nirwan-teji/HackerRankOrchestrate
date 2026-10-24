@@ -4,11 +4,13 @@ Features: init_chat_model factory, on-disk response cache (determinism + free
 re-runs), RPM throttling, retries, token/cost accounting for the ops report.
 """
 from __future__ import annotations
+
 import hashlib
 import json
 import re
 import threading
 import time
+from collections import deque
 from typing import Optional, Type, TypeVar
 
 from langchain.chat_models import init_chat_model
@@ -62,10 +64,71 @@ def _throttle(rpm: int) -> None:
         _last_call[0] = time.time()
 
 
+class TokenWindow:
+    """Sliding 60-second token budget. `wait(need)` blocks until `need` more tokens fit under the cap; `add` records what a
+    call actually used. Clock and sleep are injectable so the logic is unit-testable without waiting a real minute."""
+
+    def __init__(self, now=time.time, sleep=time.sleep):
+        self.events: deque[tuple[float, int]] = deque()
+        self.now, self.sleep = now, sleep
+        self.lock = threading.Lock()
+
+    def _used(self) -> int:
+        t = self.now()
+        while self.events and t - self.events[0][0] >= 60:
+            self.events.popleft()
+        return sum(n for _, n in self.events)
+
+    def wait(self, need: int, cap: int) -> float:
+        """-> seconds slept. A single request larger than the whole cap is let through alone rather than blocking forever."""
+        if cap <= 0:
+            return 0.0
+        slept = 0.0
+        while True:
+            with self.lock:
+                if not self.events or self._used() + min(need, cap) <= cap:
+                    return slept
+                pause = max(60 - (self.now() - self.events[0][0]), 0.05)
+            self.sleep(pause)
+            slept += pause
+
+    def add(self, tokens: int) -> None:
+        with self.lock:
+            self.events.append((self.now(), max(int(tokens), 0)))
+
+
+_TPM = TokenWindow()
+
+
+def _estimate_tokens(messages) -> int:
+    """Cheap pre-call estimate of a request's size: ~3.5 chars/token for text, a flat charge per image, plus the expected reply."""
+    chars = images = 0
+    for m in messages:
+        c = m.content
+        if isinstance(c, str):
+            chars += len(c)
+        else:
+            for part in c:
+                if isinstance(part, dict) and part.get("type") == "text":
+                    chars += len(part.get("text", ""))
+                else:
+                    images += 1
+    return int(chars / 3.5) + 800 * images + get_settings().est_out_tokens
+
+
+def _used_tokens(result, fallback: int) -> int:
+    raw = result.get("raw") if isinstance(result, dict) else result
+    meta = getattr(raw, "usage_metadata", None) or {}
+    return int(meta.get("total_tokens") or (meta.get("input_tokens", 0) + meta.get("output_tokens", 0)) or fallback)
+
+
 def get_model(vision: bool = False):
     s = get_settings()
     provider, model = (s.vision_provider, s.vision_model) if vision else (s.provider, s.model)
-    return init_chat_model(model, model_provider=provider, temperature=s.temperature)
+    kw = {}
+    if s.reasoning_effort and provider == "groq":
+        kw["reasoning_effort"] = s.reasoning_effort  # fewer hidden reasoning tokens -> far fewer output tokens per call
+    return init_chat_model(model, model_provider=provider, temperature=s.temperature, **kw)
 
 
 def _key(kind: str, model: str, payload) -> str:
@@ -89,8 +152,14 @@ def _transient(e: BaseException) -> bool:
 
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=2, min=2, max=60), retry=retry_if_exception(_transient), reraise=True)
 def _invoke(runnable, messages):
-    _throttle(get_settings().rpm)
-    return runnable.invoke(messages)
+    s = get_settings()
+    _throttle(s.rpm)
+    need = _estimate_tokens(messages)
+    _TPM.wait(need, s.tpm)
+    out = runnable.invoke(messages)
+    if s.tpm > 0:
+        _TPM.add(_used_tokens(out, need))
+    return out
 
 
 # Structured output modes, best first. Open-weight models on hosted APIs differ: e.g. Groq's gpt-oss rejects LangChain's

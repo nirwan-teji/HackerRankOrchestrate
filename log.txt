@@ -402,3 +402,26 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T23:55:00Z] Groq console shows the real limit is tokens/minute; add a token budget and correct my own call-count claims
+
+User Prompt (verbatim, secrets redacted):
+You shall also look at this
+[screenshot of the Groq console Metrics page, Sat 24 Oct 9:48pm, last 30 minutes, model openai/gpt-oss-120b: HTTP 200/400/429 request chart with a tooltip at 9:44pm reading 200: 3, 400: 0, 429: 4, total 7; a Requests chart with a red "Rate Limit" line at about 30; a Total Tokens chart with a red "Rate Limit" line at about 8K whose input/output/processed-token curves cross it twice]
+(also, in the previous message, the pasted output of scripts/llm_review_check.py: 7 of 9 false alarms on correct plans, 0 of 1 wrong plans flagged, 10 model calls, 15109 input + 12222 output tokens, 130.7 s)
+
+Agent Response Summary:
+The console shows two limits: ~30 requests/min (never reached) and ~8K tokens/min (exceeded, producing HTTP 429s). My throttle only budgeted requests, so it did nothing for the binding limit. Added a sliding 60-second token budget (LLM_TPM, with pre-call estimation and post-call accounting, an injectable clock for tests, and no deadlock on an oversized request), an optional LLM_REASONING_EFFORT for gpt-oss, and a self-test projection of the time each LLM stage needs. Measuring the stages exposed two errors of mine: there are 398 distinct request texts (I had said ~15 and recommended GHOST_LLM_INTENT_ALL=1, which would be 398 calls, ~400K tokens, about an hour), and only 3 distinct texts are rule-unsure, so the default intent layer makes 3 calls. Replaced the recommendation with a deterministic 60-text validation sample. Corrected usage_report.md, .env.example and the scripts accordingly. Reviewer prompt fixed earlier is still to be re-measured by the user.
+
+Actions:
+* code/orchestrate/{config,llm}.py (TokenWindow, token estimate, reasoning effort), code/tests/test_ghost.py (3 limiter tests; 31 passing)
+* scripts/llm_selftest.py (per-call token projection), scripts/llm_intent_check.py (--limit sampling), code/evaluation/run_eval.py (usage report from measured limits), .env.example
+* output.csv unchanged
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

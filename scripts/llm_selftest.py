@@ -93,7 +93,15 @@ def main() -> int:
     else:
         print("[4/4] link adjudication     : no ambiguity groups to test")
 
-    print("\nusage:", json.dumps(USAGE.report()))
+    u = USAGE.report()
+    print("\nusage:", json.dumps(u))
+    if u["model_calls"]:
+        per_call = (u["input_tokens"] + u["output_tokens"]) / u["model_calls"]
+        print(f"\nplanning: ~{per_call:,.0f} tokens per call (cache hits excluded). With LLM_TPM={s.tpm or 'off'}:")
+        for label, calls in (("intent: rule-unsure texts only (default)", 3), ("intent: 60-text validation sample", 60), ("intent: all 398 distinct texts", 398), ("reviewer, ~159 risky cases", 159)):
+            minutes = calls * per_call / s.tpm if s.tpm else calls / max(s.rpm, 1)
+            print(f"   {label:42s} {calls:4d} calls ~ {calls * per_call / 1000:7,.0f}K tokens ~ {minutes:5.0f} min")
+        print("   also check console.groq.com -> Usage for a DAILY token cap; the disk cache lets an interrupted run resume where it stopped.")
     print("\nIf 1-3 passed, enable the LLM layer in .env:\n  GHOST_LLM_INTENT=1\n  GHOST_LLM_INTENT_ALL=1   # classify every request text, not only unsure ones\n  GHOST_LLM_LINKS=1\nthen re-run:  python code/main.py --input sample_deletion_requests.csv --output /tmp/s.csv --eval dataset/sample_output.csv\nand compare the score with the deterministic run before keeping it on.")
     return 0
 

@@ -66,6 +66,10 @@ def main():
     a = ap.parse_args()
     ds = Path(a.dataset)
 
+    from ghost.data import Dataset as _D  # noqa: E402
+    _d = _D.__new__(_D); _d.root = ds
+    ds_requests = _D.requests(_d, "sample_deletion_requests.csv") + _D.requests(_d, "deletion_requests.csv")
+
     # 1. public samples
     _, _, srows = run(ds, "sample_deletion_requests.csv")
     pred = {r["case_id"]: (r["deletion_status"], json.loads(r["steps_json"])) for r in srows}
@@ -192,6 +196,10 @@ def main():
     text = "\n".join(L).replace("@@REVIEW@@", "\n".join(rv_lines))
     (HERE / "evaluation_report.md").write_text(text)
 
+    from ghost import intent as _intent  # noqa: E402
+    n_texts = len({r["request_text"] for r in ds_requests})
+    n_unsure = len({r["request_text"] for r in ds_requests if not _intent.rule_intent(r["request_text"])[1]})
+
     # ---- usage_report.md
     try:
         from orchestrate.llm import USAGE
@@ -225,9 +233,22 @@ def main():
          "Per-model totals: " + ("see table above (single model)." if llm_on else "no model was called, so every per-model and overall total is 0."), "",
          "### Cost model", "",
          "Set `PRICE_IN_PER_MTOK` / `PRICE_OUT_PER_MTOK` (USD per million tokens) before running to price a run; the free "
-         "Groq tier used during development costs 0. With `GHOST_LLM_INTENT=1` the number of calls is bounded by the number of "
-         "*distinct* ambiguous request texts (about 15 in the public data, ~1k tokens each), independent of the 518 cases, "
-         "so the worst case is a few tens of thousands of tokens and well within free-tier TPM/RPM limits (`LLM_RPM` throttles requests).", ""]
+         "Groq tier used during development costs 0.", "",
+         "### Rate limits observed on the free tier (measured, not assumed)", "",
+         "The Groq console for `openai/gpt-oss-120b` showed a limit of about **30 requests/min** and about **8K tokens/min**. "
+         "Our calls are small in requests but large in tokens (`gpt-oss` spends many hidden reasoning tokens: the measured reviewer "
+         "check used 15,109 input + 12,222 output tokens for 10 calls, ~2.7K tokens per call). The token limit is therefore the "
+         "binding one, and unthrottled runs hit HTTP 429. `LLM_TPM` (default off, 7000 in `.env.example`) enables a sliding "
+         "60-second token budget that estimates each call before sending it and records what it actually used; `LLM_RPM` caps "
+         "requests; 400-class errors are never retried, 429s are retried with backoff; every response is cached on disk so an "
+         "interrupted run resumes where it stopped.", "",
+         "| optional LLM stage | calls | est. tokens | est. time at ~7K tokens/min |", "|---|---|---|---|",
+         f"| reviewer of risky plans | {in_scope_n} | ~{in_scope_n * 2.7:,.0f}K | ~{in_scope_n * 2.7 / 7:,.0f} min |",
+         f"| intent second opinion, rule-unsure texts only (default) | {n_unsure} | ~{n_unsure}K | <1 min |",
+         "| intent validation sample (`scripts/llm_intent_check.py`, default 60) | 60 | ~60K | ~9 min |",
+         f"| intent on every distinct text (`GHOST_LLM_INTENT_ALL=1`) | {n_texts} | ~{n_texts:,.0f}K | ~{n_texts / 7:,.0f} min |", "",
+         "`LLM_REASONING_EFFORT=low` should shrink the output side materially; it is measured by `scripts/llm_selftest.py`, which "
+         "prints tokens per call and the projected time for each stage.", ""]
     (HERE / "usage_report.md").write_text("\n".join(U))
     print(f"samples: status {pct(s['status_accuracy'])}, step F1 {pct(s['step_f1'])}, exact {pct(s['exact_case_match'])}; "
           f"custom {sum(c['status_ok'] and c['steps_ok'] for c in custom)}/{len(custom)}; full run {n} rows in {wall:.1f}s, violations {len(full_errs)}")
