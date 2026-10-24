@@ -1,0 +1,72 @@
+## [2026-10-24T13:05:00Z] SESSION START
+
+tool=Claude Code
+model=claude-sonnet-5-5
+Repo Root: /home/user/HackerRankOrchestrate
+Branch: claude/hackerrank-orchestrate-setup-mg8reg
+Worktree: main
+Parent Agent: none
+Language: py
+Time Remaining: not configured
+
+## [2026-10-23T14:00:00Z] Pre-challenge scaffold (catch-up entry for earlier turns)
+
+User Prompt (verbatim, secrets redacted):
+Summary of earlier turns, written retroactively because AGENTS.md had not yet been added: the user asked for a generic hackathon scaffold (Python, LangChain/LangGraph, Groq via global env switch), requested research of prior HackerRank Orchestrate editions, and later debugged local setup (venv, pytest, .env handling). A real API key appeared in screenshots; the user was told to rotate it and keep it out of git.
+
+Agent Response Summary:
+Researched earlier editions (support triage, damage-claim vision, notification router), built a task-agnostic scaffold under code/ (llm wrapper with cache/retry/usage, guardrails, BM25 retrieval, rule engine, LangGraph skeleton, eval helpers, packaging scripts, tests). Fixed Python 3.9 annotation compatibility and a BM25 test. All four tests pass on the user's machine.
+
+Actions:
+* created code/, scripts/, tests/, .env.example
+* pushed to claude/hackerrank-orchestrate-setup-mg8reg
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
+
+## [2026-10-24T13:06:00Z] Problem statement received; starter repo imported and studied
+
+User Prompt (verbatim, secrets redacted):
+Ghost Data Still Exists ... (full problem statement pasted; identical to problem_statement.md in the repo root). Closing line: "Tell me what else you need.?"
+
+Agent Response Summary:
+Cloned the public starter repo, copied AGENTS.md, CLAUDE.md, problem_statement.md and dataset/ into the repo, and surveyed every evidence format (SQLite-compatible SQL snapshots, JSON bundles, structured logs, text handover, PDFs, PNGs). Traced sample case_03 end to end: identity resolution -> resource linking from older snapshots -> current state from the readback log nearest audit_at. Decision: build a deterministic evidence-normalisation + policy engine, with LLM/VLM used only to extract facts from PDFs/images and for request-intent classification, validated against the 32 sample answers.
+
+Actions:
+* git clone of interviewstreet/hackerrank-orchestrate-october26 (scratchpad)
+* copied starter files into repo root
+* inspected dataset/*.csv and dataset/evidence/* (read-only analysis scripts)
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
+
+## [2026-10-24T14:30:00Z] Build deletion-audit engine v1 (parsers, linking, policy, scoring)
+
+User Prompt (verbatim, secrets redacted):
+(no new user message; continuing autonomous implementation of the previous request: "Tell me what else you need.?")
+
+Agent Response Summary:
+Implemented code/ghost: log-dialect parser, SQL/JSON/TXT/PDF evidence normaliser into uniform observations, local OCR (rapidocr, cached) for PNGs, identity resolution through the audit log, direct-identifier linking plus activity-cluster linking around reported_at, state reconstruction at audit_at, policy-to-steps mapping with the mandated ordering, and a scoring harness. First run on the 32 public samples: status accuracy 100%, step F1 0.87. Remaining misses are being analysed family by family.
+
+Actions:
+* created code/ghost/{logparse,model,evidence,documents,vision,data,identity,engine,steps,scoring,run}.py
+* created scripts/explore_case.py (dev helper)
+* ran python3 -m ghost.run --input sample_deletion_requests.csv --eval dataset/sample_output.csv
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

@@ -1,0 +1,85 @@
+CustomerReference
+Search references, orders, support cases or finance records...
+Northstar Shop
+Production Help
+Registry
+CR
+Northstar Shop / Customer Reference Registry / Customer references
+Home
+user_17
+Retained reference
+Filter
+Export
+Actions
+Customerkey - Account Platform - eu-west
+Customer references
+Overview
+Linked records
+History
+Orders
+Support
+Reference type
+Created
+Most recent update
+Owner team
+Customerkey
+11Jan202408:42UTC
+10Mar202607:18UTC
+Account Platform
+Finance
+Datamanagement
+Overview
+Updated moments ago • 4 records
+History
+Reports
+System
+Record reference
+Relationship
+Created (UTC)
+Status
+10Mar2026
+Metadata reviewed
+Orders
+Linked to customer
+11 Jan 2024 08:45
+ORD-20263245
+Active
+22 Aug 2024
+Finance link added
+03Jun2024
+Active
+Linked to customer
+CS-3245
+14 Feb 2024 12:16
+Support
+2]
+Support link added
+14 Feb 2024
+Support link added
+CS-3378
+Linked to customer
+03 Jun 2024 09:27
+Support
+3]
+Active
+11 Jan 2024
+Reference created
+FIN-7742
+Linked to customer
+22 Aug 2024 15:03
+Finance
+Active
+Activity
+Reference created
+Recorded
+Order link added
+ORD-20263245
+Support links added
+CS-3245, CS-3378
+Finance link added
+FIN-7742
+Metadata reviewed
+Recorded
+Customer Reference Registry
+Production workspace
+build 2026.10.4

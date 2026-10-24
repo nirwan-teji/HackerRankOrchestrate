@@ -1,0 +1,95 @@
+Vault Recovery Manager
+Search archives, accounts or restore requests...
+Northstar Shop
+Production Help
+VR
+Northstar Shop/ Vault Recovery Manager/ Recovery Manager
+Overview
+Customer-platform archives
+Healthy
+Filter
+Export
+Actions
+Recovery Manager
+Northstar Production -weekly snapshots
+Archives
+Recent restores
+Infrastructure health
+Customerplatforms
+Storage growth
+Restore success
+Service health
+Restore requests
+Stored
+Healthy
++12.4%
+99.6%
+1.35PB
+Infrastructure
+Reports
+Archives
+Updated moments ago 4 records
+backup_9287
+Archive ID
+Encryption
+Account
+Region
+Created
+Size
+Tier
+Account
+areed1433@gmail.com
+26 Apr 02:00
+102.3 GB
+AES-256
+backup_9291
+bluepeakco@outlook.com
+ap-southeast-1
+Archive
+Path
+s3://northstar-backups/customer-
+platform/weekly/segment-42-
+miller.logistics@company.com
+67.1 GB
+AES-256
+2 backup_9288
+us-west-2
+26 Apr 02:00
+Archive
+20260426.tar.zst
+Region
+eu-west-1
+backup_9287
+eu-west-1
+26 Apr 02:00
+84.7 GB
+AES-256
+areed1433@gmail.com
+Archive
+Created
+26 Apr2026 02:00 UTC
+4backup_9286
+us-east-1
+26 Apr 02:00
+91.4 GB
+AES-256
+summit-retail@company.com
+Archive
+Encryption
+AES-256
+Checksum
+Verified
+Last drill
+29 Mar 2026
+Retention end
+26 Jul 2026
+Activity
+25 Apr
+backup_9286 restored -Completed
+24 Apr
+backup_9281 restored-Completed
+22 Apr
+checksum verification · Completed
+Vault Recovery Manager
+Production workspace
+build 2026.10.4

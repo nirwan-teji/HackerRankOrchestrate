@@ -1,0 +1,88 @@
+BridgeOps
+Search connectors...
+Northstar Shop
+Production Help
+Northstar Shop/BridgeOps / Connections
+Connections
+Connections
+12 connectors
+Filter
+Export
+Actions
+Topology
+PRODUCTION -eu-west -07Aug 2026 08:00 UTC
+Topology
+Throughput
+Monitoring
+Recent deliveries
+Events
+Healthy
+Events / hour
+Delivery p95
+Backlog
+Destination health
+12
+4,113
+1.8 s
+18
+Healthy
+Destinations
+Settings
+Topology
+Updated moments ago - 4 records
+data_flow_1121
+Connector
+Selector
+Mode
+Destination
+Events/hour
+Last contact
+Status
+Healthy
+1,284
+data_flow_1121
+customer_analytics_warehouse
+jain.aditi@gmail.com
+Continuous
+07:59:42
+Owner
+Data Platform
+Destination
+842
+lucia-torres@gmail.com
+Continuous
+07:59:36
+1data_flow_9846
+customer_analytics_warehouse
+[2]
+customer_analytics_warehouse
+Selector
+jain.aditi@gmail.com
+Continuous
+650
+Order notifications
+notification_service
+order events
+07:59:28
+Sync mode
+Continuous sync
+420
+Delivery tracking
+logistics_warehouse
+Continuous
+shipment events
+07:59:13
+Last response
+200OK.1.8s
+Activity
+07:59:42
+124 events delivered
+07:58:10
+checkpoint committed
+07:56:44
+18 events retried
+07:55:02
+destination acknowledged batch
+BridgeOps
+Production workspace
+build 2026.10.4

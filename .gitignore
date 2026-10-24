@@ -223,3 +223,5 @@ __marimo__/
 .env
 .cache/
 submission/
+__pycache__/
+*.pyc
