@@ -159,3 +159,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T18:00:00Z] Clarified: output.csv is real (deterministic engine), LLM layer is the gap
+
+User Prompt (verbatim, secrets redacted):
+We had to create a  LLM agent right.? How did you get output.csv without any LLM 🥲 is it just like a placeholder.?
+
+Agent Response Summary:
+Confirmed output.csv is a genuine product of the deterministic engine, not a placeholder, and that the contest text encourages but does not strictly require LLM use ("free to bring your own approach"). Acknowledged the framing risk (AI-powered agent, usage report, judge interview) and proposed a phased LLM layer for the user to approve. No code changes this turn.
+
+Actions:
+* appended this entry to log.txt
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
