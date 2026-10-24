@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 
 from .data import Dataset, canon
 from .identity import IdentityIndex, Subject
+from . import adjudicate as adjudicate_mod
 from . import intent as intent_mod
-from .linking import assign_events
+from .linking import Ambiguity, assign_events
 from .model import Obs, category_of, rid_prefix, system_of
 from .steps import Step, build_steps, plan_for
 
@@ -21,6 +22,7 @@ def P(s: str) -> datetime:
 
 
 BAD = {"PRESENT", "EXPOSED", "ENABLED", "RESTORABLE"}
+CITABLE = re.compile(r"^(evidence|activity|audit)_\w+$")  # only these id shapes may appear in evidence_id
 WORKER_TYPES = {"DELETE_RECORD", "ANONYMIZE_RECORD", "REDACT_RECORD", "DISABLE_DATA_FLOW", "BLOCK_RESTORE",
                 "CHECK_DATA_FLOW", "CHECK_RESTORE_ACCESS"}
 WINDOW = timedelta(minutes=130)
@@ -92,7 +94,7 @@ class Auditor:
                 if any(k in canon(a["details"]) for k in sub.emails) or re.search(rf"\b{sub.user_id}\b", a["details"]):
                     rid = a["resource_id"]
                     if any(self.usable(o, audit_at, requested_at) for o in self.obs_by_rid.get(rid, [])):
-                        out.setdefault(rid, "catalog")
+                        out.setdefault(rid, a["activity_id"])  # the catalog link itself is a citable activity_id
         return out
 
     def _link_all(self):
@@ -106,8 +108,28 @@ class Auditor:
         cases = {c: x for c, x in self.cases.items() if self.subj[c] and self.intent[c] == "DELETE"}
         clean = {c: not any(plan_for(self._state(c, r))[0] for r in self.direct[c]) for c in cases}
         anchor = {c: self._anchor_rids(c) for c in cases}
-        raw = assign_events(self.ds.activity, cases, self.direct, clean, anchor, set(self.obs_by_rid))
+        self.ambiguities: list[Ambiguity] = []
+        raw = assign_events(self.ds.activity, cases, self.direct, clean, anchor, set(self.obs_by_rid), self.ambiguities)
         self.assigned = {c: self._plausible(c, links) for c, links in raw.items()}
+        self.llm_trail: list[dict] = []
+        if adjudicate_mod.enabled() and self.ambiguities:
+            try:
+                swaps, self.llm_trail = adjudicate_mod.adjudicate(self, self.ambiguities)
+            except Exception as e:  # never let the advisory layer break a deterministic run
+                swaps, self.llm_trail = {}, [{"outcome": f"adjudication failed: {type(e).__name__}"}]
+            for cid, moves in swaps.items():
+                for old, new in moves.items():
+                    act = self.assigned[cid].pop(old, "")
+                    self.assigned[cid][new] = act
+                    for a in self.ambiguities:
+                        if a.chosen.get(cid) == old:
+                            a.chosen[cid] = new
+        # resources whose owner was guessed, not derived: {case_id: {resource_id: [interchangeable case_ids]}}
+        self.guessed: dict[str, dict[str, list[str]]] = defaultdict(dict)
+        for a in self.ambiguities:
+            for cid, rid in a.chosen.items():
+                if rid in self.assigned.get(cid, {}):
+                    self.guessed[cid][rid] = a.case_ids
 
     def _anchor_rids(self, cid: str) -> set:
         """Resources listed in the latest evidence files that mention this subject directly."""
@@ -153,26 +175,39 @@ class Auditor:
             tmax = max(o.t for o in obs)
             top = sorted((o for o in obs if o.t == tmax), key=lambda o: (o.state not in BAD, o.file_id))
             state = top[0].state
+            # Citation is resolved independently of the observation that fixed the state: a file captured after
+            # audit_at may establish the state (its lines predate the cutoff) but must never be cited.
             cands = [o for o in obs if o.state == state and self.citable(o, audit_at)] or [o for o in obs if self.citable(o, audit_at)]
             ev = max(cands, key=lambda o: (o.t, o.file_id)).file_id if cands else ""
+            if not ev and state == "ABSENT":
+                ev = self._absence_proof(rid, system, audit_at, reported_at) or ""
+            if not ev:  # last resort: the worker event itself is a participant-visible activity_id
+                acts = [a for a in self.act_by_rid.get(rid, []) if P(a["event_time"]) <= audit_at]
+                ev = max(acts, key=lambda a: (a["event_time"], a["activity_id"]))["activity_id"] if acts else ""
             return ResourceState(rid, cat, system, state, ev)
         # no explicit lookup: infer absence from the latest populated snapshot that covers the system
+        best = self._absence_proof(rid, system, audit_at, reported_at)
+        if best and cat in ("USER_PROFILE", "SEARCH_INDEX_ENTRY", "USER_EXPORT"):
+            return ResourceState(rid, cat, system, "ABSENT", best)
+        return ResourceState(rid, cat, system, "UNKNOWN", "")
+
+    def _absence_proof(self, rid: str, system: str, audit_at: datetime, reported_at: datetime) -> str | None:
+        """A citable snapshot that covers `system`, postdates the report and does not list `rid`."""
         best = None
         for fid, sc in self.ds.scopes.items():
             ct = P(sc["systems"].get(system, "1970-01-01T00:00:00Z")) if system in sc.get("systems", {}) else None
             if ct and sc.get("rids") and reported_at < ct <= audit_at and P(sc["captured_at"]) <= audit_at:
                 if rid not in sc["rids"] and (best is None or ct > best[0]):
                     best = (ct, fid)
-        if best and cat in ("USER_PROFILE", "SEARCH_INDEX_ENTRY", "USER_EXPORT"):
-            return ResourceState(rid, cat, system, "ABSENT", best[1])
-        return ResourceState(rid, cat, system, "UNKNOWN", "")
+        return best[1] if best else None
 
     # ------------------------------------------------------------------ audit stages (wired as a LangGraph in pipeline.py)
     def stage_links(self, cid: str) -> dict[str, tuple[str, str]]:
         """rid -> (how it was linked, activity/evidence hint). Direct identifier matches win over activity links."""
         sub = self.subj[cid]
-        links = {r: ("activity", a) for r, a in self.assigned.get(cid, {}).items()}
-        links.update({r: ("direct", ev) for r, ev in self.direct[cid].items()})
+        guessed = self.guessed.get(cid, {})
+        links = {r: ("guess" if r in guessed else "activity", a) for r, a in self.assigned.get(cid, {}).items()}
+        links.update({r: ("direct", "" if ev == "direct" else ev) for r, ev in self.direct[cid].items()})
         # a linked search document names the account it was indexed from (source_resource_id) -> that account is the subject's too
         c = self.cases[cid]
         for rid in list(links):
@@ -193,7 +228,7 @@ class Auditor:
         for rid, (via, hint) in sorted(links.items()):
             st = self.state_of(rid, audit_at, reported_at, requested_at)
             st.via = via
-            if not st.evidence and hint:
+            if not st.evidence and CITABLE.match(hint or ""):
                 st.evidence = hint
             out.append(st)
         return out

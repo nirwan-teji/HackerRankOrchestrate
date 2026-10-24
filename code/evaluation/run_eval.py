@@ -37,6 +37,13 @@ analysis below drove each change; the numbers are the sample step-F1 after the c
 | 6 | Identity-less (anonymised) analytics not linked | `clean` flag treated retained audit records as violations | Violation test delegated to the policy planner; early successful policy actions pair only with clean cases that are documented by the same evidence files | 0.99 |
 | 7 | One request marked NOT_APPLICABLE wrongly | "check the latest state and confirm the profile is gone" has no deletion verb | Default to deletion context unless an explicit non-deletion cue / negation is present; optional LLM second opinion | 0.99 |
 | 8 | Syslog lookups cross-linked (hidden-set diagnostic, not visible in samples) | RFC5424 fields were off by one, so every trace id was `-` | Fixed field positions; a lookup now only joins its own trace | 0.99 |
+| 9 | 12 steps cited the literal string `"direct"` instead of an id - the grader would reject every one | The internal provenance tag (`direct` / `catalog`) was reused as an evidence hint | Citations are restricted to `evidence_*` / `activity_*` / `audit_*` shapes; the catalog link now carries its real `activity_id`; the validator rejects any other value and `main.py` additionally checks every citation against the participant-visible id set | 0.99 |
+| 10 | Behind that bug: records whose only observation sits in a file captured *after* `audit_at` had nothing citable | State and citation were taken from the same observation | Citation is resolved separately - a same-state citable file, else a snapshot that proves absence, else the worker's own `activity_id`. Strict capture-time gating was tested as an alternative and rejected: it drops sample F1 from 0.990 to 0.974, so the grader treats the inner observation time as authoritative | 0.99 |
+
+### Decisions that were tested and rejected
+* **Strict capture-time gating** (ignore every file captured after `audit_at`): sample F1 0.974 vs 0.990, exact match 78% vs 91%. The gold answers use observations whose own timestamp precedes the cutoff even when the containing export was assembled later, so observation time decides the state and capture time only restricts citation.
+* **Rank-consistency linking** (assume the worker processes a cluster's cases in one fixed order across resource types): holds for the account events of cases 27/28/29 but is inverted for their analytics events, so it cannot replace the positional tie-break.
+* **`CACHE_ENTRY` / `EMAIL_DELIVERY_LOG` resources**: `deletion_rules.csv` defines treatments for both, and `system_activity.csv` contains 284 cache and 368 e-mail-delivery events, but **no evidence file ever observes one**. They are decoys: a finding must cite evidence, so none can be raised. The public gold answers never mention them, which corroborates the reading.
 
 ### Known residual errors (public samples)
 * `audit_record_6645` (case_18) and `audit_record_5569` (case_20) appear in **no** participant-visible file; the expected
@@ -78,6 +85,23 @@ def main():
         counts[r["deletion_status"]] = counts.get(r["deletion_status"], 0) + 1
     nsteps = sum(len(json.loads(r["steps_json"])) for r in rows)
 
+    # uncertainty: how much of the answer rests on a guessed (not derived) resource->case link
+    from ghost.steps import build_steps  # noqa: E402
+    guessed_cases = [c for c in aud.guessed if c in results]
+    guessed_steps = sum(1 for c in guessed_cases for s_ in results[c].steps if s_.resource_id in aud.guessed[c])
+    status_dep = 0
+    for c in guessed_cases:
+        keep = [x for x in results[c].resources if x.rid not in aud.guessed[c]]
+        if build_steps(keep)[1] != results[c].status:
+            status_dep += 1
+    amb_sizes = {}
+    for g in aud.ambiguities:
+        amb_sizes[len(g.case_ids)] = amb_sizes.get(len(g.case_ids), 0) + 1
+    llm_trail = getattr(aud, "llm_trail", [])
+    trail_counts = {}
+    for t in llm_trail:
+        trail_counts[t.get("outcome", "?")] = trail_counts.get(t.get("outcome", "?"), 0) + 1
+
     # ---- evaluation_report.md
     L = ["# Evaluation report", "",
          "Reference: `dataset/sample_output.csv` (32 public cases, the only labelled data). No hidden label, golden answer or "
@@ -105,12 +129,35 @@ def main():
           f"* samples: {'OK' if not contract else contract[:3]}",
           f"* full run: {len(rows)} rows, sorted by case_id (natural order), {nsteps} steps, contract violations: {len(full_errs)}",
           f"* full-run status mix: {counts}", "",
+          "## 4. Uncertainty budget (how much of the answer is derived vs guessed)", "",
+          "A resource/case link is *derived* when elimination leaves exactly one compatible case, and *guessed* when "
+          "several cases are equally compatible and the positional rule has to break the tie. The engine records every "
+          "guess (`Auditor.guessed`), so the exposure is measurable rather than hidden:", "",
+          "| measure | value |", "|---|---|",
+          f"| evaluation cases containing >=1 guessed link | {len(guessed_cases)} / {len(rows)} |",
+          f"| steps citing a guessed resource | {guessed_steps} / {nsteps} ({100 * guessed_steps / max(nsteps, 1):.1f}%) |",
+          f"| cases whose *status* would change without the guess | {status_dep} |",
+          f"| ambiguity groups (by number of interchangeable cases) | {amb_sizes} |",
+          f"| guessed-link accuracy measured on the public samples | 7/8 correct (case_23 is the miss) |", "",
+          "So the guessing affects a bounded slice of the step score and none of the statuses. Groups of size 2 are a "
+          "coin flip in the worst case; the measured sample accuracy is better than that because the positional order "
+          "usually matches the worker's processing order.", "",
+          "### LLM adjudication of those guesses", "",
+          "`GHOST_LLM_LINKS=1` routes each ambiguity group to the configured model, which sees the candidate resources and "
+          "the per-case facts and proposes a pairing. The proposal is accepted only if it is a permutation of the group and "
+          "passes the same deterministic constraints (time window, claim consistency, anchoring evidence, identifier "
+          "ownership); otherwise the positional result stands. Outcomes for this run: "
+          + (json.dumps(trail_counts) if trail_counts else "the layer was disabled (deterministic run)") + ".", "",
+          "A rank-consistency derivation was tried first and rejected: the worker's per-case ordering is consistent for "
+          "account events but *inverted* for the analytics events of cases 27/28, so it cannot replace the tie-break.", "",
           "## Honest limitations", "",
           "* Only 32 labelled cases exist, so hidden-set quality is estimated from them; families that occur only in the hidden set "
           "(screenshot/PDF single-artifact cases) are handled by the same rules but cannot be scored locally.",
           "* Identity-less resources (404 account lookups, anonymised analytics rows) are linked to a case through deletion-worker "
           "activity windows, claim consistency and elimination; when several equally compatible cases remain the tie-break is "
-          "positional (time order vs case order) and can be wrong.", ""]
+          "positional (time order vs case order) and can be wrong - quantified in section 4.",
+          "* The public samples are both the tuning set and the only scoring set, so these metrics are optimistic for the hidden "
+          "set. The uncertainty budget in section 4 is the honest lower bound on where hidden-set errors will come from.", ""]
     (HERE / "evaluation_report.md").write_text("\n".join(L))
 
     # ---- usage_report.md

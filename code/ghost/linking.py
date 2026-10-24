@@ -10,10 +10,15 @@ worker events with no identifier, e.g. `DELETE_RECORD account_service account_38
   3. elimination: events/cases already explained by direct evidence are removed; and
   4. a deterministic positional pairing (time order vs case_id order) for what is still ambiguous, but only when
      the number of events equals the number of cases that still need one.
+
+Steps 1-3 are *derivations*: one case survives, so the link is grounded. Step 4 is a *guess* between equally
+compatible candidates. Every step-4 pairing is recorded in `Ambiguity` so downstream code knows the link is unproven
+and can route it to the LLM adjudicator (`adjudicate.py`) instead of trusting it silently.
 """
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
 from .model import rid_prefix
@@ -29,15 +34,34 @@ WORKER_TYPES = {"DELETE_RECORD", "ANONYMIZE_RECORD", "REDACT_RECORD", "DISABLE_D
 PREFIXES = ("account", "analytics", "support", "search", "export", "data_flow", "backup", "tombstone", "marketing")
 
 
+@dataclass
+class Ambiguity:
+    """One group of interchangeable (event, case) pairings that had to be guessed positionally."""
+
+    prefix: str
+    case_ids: list[str]
+    events: list[dict]
+    chosen: dict[str, str] = field(default_factory=dict)  # case_id -> resource_id picked by the positional rule
+
+    @property
+    def resource_ids(self) -> list[str]:
+        return [a["resource_id"] for a in self.events]
+
+
 def assign_events(activity: list[dict], cases: dict[str, dict], direct: dict[str, dict[str, str]],
                   clean: dict[str, bool] | None = None, anchor: dict[str, set] | None = None,
-                  observed: set | None = None) -> dict[str, dict[str, str]]:
-    """Return {case_id: {resource_id: activity_id}} for events that carry no identifier."""
+                  observed: set | None = None,
+                  ambiguities: list[Ambiguity] | None = None) -> dict[str, dict[str, str]]:
+    """Return {case_id: {resource_id: activity_id}} for events that carry no identifier.
+
+    Guessed pairings are appended to `ambiguities` (when a list is supplied) as `Ambiguity` records.
+    """
     claimed = {rid for links in direct.values() for rid in links}
     events = [a for a in activity if a["source_system"] == "deletion_worker" and a["event_type"] in WORKER_TYPES
               and a["resource_id"] not in claimed]
     out: dict[str, dict[str, str]] = {cid: {} for cid in cases}
     used: set[str] = set()
+    amb = ambiguities if ambiguities is not None else []
     for prefix in PREFIXES:
         evs = sorted((a for a in events if rid_prefix(a["resource_id"]) == prefix), key=lambda a: (a["event_time"], a["activity_id"]))
         if not evs:
@@ -65,9 +89,9 @@ def assign_events(activity: list[dict], cases: dict[str, dict], direct: dict[str
         cand = {a["activity_id"]: [cid for cid in need if compatible(cid, a)] for a in evs}
         # accounts: every case has exactly one -> propagate forced pairs, then pair leftovers positionally
         if prefix == "account":
-            _resolve_accounts(evs, need, cand, out, used)
+            _resolve_accounts(evs, need, cand, out, used, amb)
         else:
-            _resolve_policy(evs, need, cand, out, used)
+            _resolve_policy(evs, need, cand, out, used, amb)
     return out
 
 
@@ -76,7 +100,7 @@ def _take(out, used, cid, a):
     used.add(a["activity_id"])
 
 
-def _resolve_accounts(evs, need, cand, out, used):
+def _resolve_accounts(evs, need, cand, out, used, amb):
     ev_by_id = {a["activity_id"]: a for a in evs}
     free_cases = set(need)
     changed = True
@@ -111,11 +135,17 @@ def _resolve_accounts(evs, need, cand, out, used):
                     todo += [y for y in left if cid in cand[y["activity_id"]] and y["activity_id"] not in seen]
         cs = sorted(comp_cs)
         if len(comp_ev) == len(cs):
-            for cid, ev in zip(cs, sorted(comp_ev, key=lambda e: (e["event_time"], e["activity_id"]))):
+            ordered = sorted(comp_ev, key=lambda e: (e["event_time"], e["activity_id"]))
+            rec = Ambiguity("account", cs, ordered) if len(cs) > 1 else None
+            for cid, ev in zip(cs, ordered):
                 _take(out, used, cid, ev); free_cases.discard(cid)
+                if rec is not None:
+                    rec.chosen[cid] = ev["resource_id"]
+            if rec is not None:
+                amb.append(rec)
 
 
-def _resolve_policy(evs, need, cand, out, used):
+def _resolve_policy(evs, need, cand, out, used, amb):
     # group events that are compatible with exactly the same set of cases; pair positionally when counts match
     groups = defaultdict(list)
     for a in evs:
@@ -124,6 +154,11 @@ def _resolve_policy(evs, need, cand, out, used):
             groups[cids].append(a)
     for cids, group in groups.items():
         if len(group) == len(cids):
+            rec = Ambiguity(rid_prefix(group[0]["resource_id"]), list(cids), list(group)) if len(cids) > 1 else None
             for cid, a in zip(cids, group):
                 if a["activity_id"] not in used:
                     _take(out, used, cid, a)
+                    if rec is not None:
+                        rec.chosen[cid] = a["resource_id"]
+            if rec is not None and rec.chosen:
+                amb.append(rec)

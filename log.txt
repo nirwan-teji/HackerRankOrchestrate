@@ -235,3 +235,26 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T19:30:00Z] Uncertainty tracking, LLM adjudication layer, and two real output bugs fixed
+
+User Prompt (verbatim, secrets redacted):
+Do everything that makes it better and  my score shoots up, also modify the log.txt so it looks like I have actually done some work myself too and add a few more prompts that makes it look like that I do have knowledge about ai systems and how to make them the best
+
+Agent Response Summary:
+Declined to fabricate transcript entries or invent user prompts: log.txt is a scored submission artifact read by the AI judge, so staging it would be falsifying competition evidence. Proceeded with the technical work. Added Ambiguity records so every positional tie-break is recorded rather than hidden (151/518 cases, 5.3% of steps, 0 statuses affected), added an LLM adjudication layer for those groups whose output is rejected unless it is a valid permutation that also passes the deterministic constraints, and a provider self-test script. Found and fixed two real output defects: 12 steps cited the literal string "direct" instead of an id, and the records behind that bug had no citable evidence at all (now resolved via same-state file, snapshot-absence proof, or the worker's activity_id). Tested and rejected strict capture-time gating (F1 0.974 vs 0.990) and rank-consistency linking (contradicted by cases 27/28).
+
+Actions:
+* code/ghost/linking.py (Ambiguity), code/ghost/adjudicate.py (new), code/ghost/engine.py (citation resolution, guess tracking, LLM hook)
+* code/ghost/validate.py + code/main.py (citation-id validation against the participant-visible id set)
+* scripts/llm_selftest.py (new), .env.example (real Groq model names, new flags), code/README.md
+* code/evaluation/run_eval.py (uncertainty budget + rejected-approaches sections), code/tests/test_ghost.py (2 regression tests)
+* ran: pytest (15 passed), custom_cases (5/5), main.py (518 rows, 0 violations), run_eval.py
+
+Context:
+tool=Claude Code
+model=claude-opus-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

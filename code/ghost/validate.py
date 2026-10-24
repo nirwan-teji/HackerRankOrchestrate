@@ -17,7 +17,11 @@ def case_key(cid: str):
     return (cid[: m.start()], int(m.group(1))) if m else (cid, -1)
 
 
-def validate_rows(rows: list[dict], expected_ids: list[str]) -> list[str]:
+CITABLE = re.compile(r"^(evidence|activity|audit)_\w+$")
+
+
+def validate_rows(rows: list[dict], expected_ids: list[str], known_ids: set[str] | None = None) -> list[str]:
+    """known_ids: every participant-visible file_id / activity_id / audit_id, when available."""
     errs: list[str] = []
     if [r["case_id"] for r in rows] != sorted(expected_ids, key=case_key):
         errs.append("rows are not exactly the input cases sorted by case_id")
@@ -47,6 +51,10 @@ def validate_rows(rows: list[dict], expected_ids: list[str]) -> list[str]:
                 errs.append(f"{cid}: planned step {i} must not cite evidence")
             if r["deletion_status"] == "INCOMPLETE" and s["phase"] == "FINDING" and not s["evidence_id"]:
                 errs.append(f"{cid}: finding {i} lacks evidence")
+            if s["evidence_id"] and not CITABLE.match(s["evidence_id"]):
+                errs.append(f"{cid}: step {i} cites {s['evidence_id']!r}, which is not an evidence/activity/audit id")
+            if s["evidence_id"] and known_ids is not None and s["evidence_id"] not in known_ids:
+                errs.append(f"{cid}: step {i} cites unknown id {s['evidence_id']!r}")
         if keys != sorted(keys):
             errs.append(f"{cid}: steps are not in the mandated order")
     return errs

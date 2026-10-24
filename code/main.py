@@ -31,7 +31,9 @@ def main() -> int:
     a = ap.parse_args()
 
     aud, results, rows = run(Path(a.dataset), a.input, Path(a.output))
-    errs = validate_rows(rows, [r["case_id"] for r in rows])
+    known = ({m["file_id"] for m in aud.ds.manifest} | {x["activity_id"] for x in aud.ds.activity}
+             | {x["audit_id"] for x in aud.ds.audit_log})
+    errs = validate_rows(rows, [r["case_id"] for r in rows], known)
     if errs:
         print("OUTPUT CONTRACT VIOLATIONS:", *errs[:20], sep="\n  ")
         return 1

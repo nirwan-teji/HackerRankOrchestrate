@@ -18,6 +18,7 @@ python code/main.py                       # reads dataset/, writes output.csv at
 python code/main.py --dataset D --input sample_deletion_requests.csv --output /tmp/s.csv --eval D/sample_output.csv
 python code/evaluation/run_eval.py        # regenerates evaluation/evaluation_report.md and usage_report.md
 python code/evaluation/custom_cases.py    # the team-written evaluation scenarios
+python scripts/llm_selftest.py            # verify provider/key/model before enabling the LLM layer
 pytest -q code/tests                      # unit + regression tests
 ```
 The full 518-case run takes ~3 s and is deterministic (no randomness, stable ordering, cached OCR).
@@ -39,7 +40,11 @@ classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> pl
 5. **State at `audit_at`**: latest observation by its own time <= `audit_at` and >= `requested_at`; a file may be *cited* only
    if its manifest capture time <= `audit_at`; absence can be proven by a populated snapshot that covers the system.
    Workflow statuses and activity results are treated as claims, never as proof.
-6. **Policy** (`steps.py`): `deletion_rules.csv` semantics -> DELETE / REDACT / ANONYMIZE / RETAIN / restore block / flow
+6. **Uncertainty + LLM adjudication** (`linking.py`, `adjudicate.py`): a link is *derived* when elimination leaves one
+   candidate and *guessed* when several cases are interchangeable. Guesses are recorded (`Auditor.guessed`), counted in the
+   evaluation report, and - with `GHOST_LLM_LINKS=1` - handed to the model, whose pairing is accepted only if it is a
+   permutation that also passes the deterministic constraints. Otherwise the positional result stands.
+7. **Policy** (`steps.py`): `deletion_rules.csv` semantics -> DELETE / REDACT / ANONYMIZE / RETAIN / restore block / flow
    disable; steps are ordered by phase, operation table order, `system_id`, `resource_id`; `validate.py` enforces the contract.
 
 ## Layout
@@ -48,4 +53,7 @@ classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> pl
 
 ## Configuration
 Everything is environment-driven (`.env`): `LLM_PROVIDER`, `LLM_MODEL` (groq / openai / anthropic / google_genai / ollama),
-`LLM_RPM`, `GHOST_LLM_INTENT`. No secrets are stored in the repository.
+`LLM_RPM`, `GHOST_LLM_INTENT` (request-intent second opinion), `GHOST_LLM_INTENT_ALL` (classify every text),
+`GHOST_LLM_LINKS` (adjudicate ambiguous links). No secrets are stored in the repository. With every flag off the run is
+fully deterministic and makes zero model calls; with them on, model output that the evidence contradicts is discarded,
+so the pipeline degrades to the deterministic answer rather than to a worse one.

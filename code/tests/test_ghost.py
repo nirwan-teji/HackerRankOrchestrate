@@ -82,3 +82,32 @@ def test_public_sample_regression():
     _, _, rows = run(ROOT / "dataset", "sample_deletion_requests.csv")
     s = score({r["case_id"]: (r["deletion_status"], json.loads(r["steps_json"])) for r in rows}, load(ROOT / "dataset" / "sample_output.csv"))
     assert s["status_accuracy"] == 1.0 and s["step_f1"] >= 0.98
+
+
+def test_every_citation_is_a_real_participant_visible_id():
+    """Regression: provenance tags ("direct") once leaked into evidence_id, which the grader would reject."""
+    import csv
+
+    from ghost.run import run
+
+    ds = ROOT / "dataset"
+    if not (ds / "deletion_requests.csv").exists():
+        pytest.skip("dataset not present")
+    aud, _, rows = run(ds, "deletion_requests.csv")
+    known = ({m["file_id"] for m in aud.ds.manifest} | {a["activity_id"] for a in aud.ds.activity}
+             | {a["audit_id"] for a in aud.ds.audit_log})
+    cited = {s["evidence_id"] for r in rows for s in json.loads(r["steps_json"]) if s["evidence_id"]}
+    assert not (cited - known), sorted(cited - known)[:5]
+    assert not validate_rows(rows, [r["case_id"] for r in rows], known)
+
+
+def test_ambiguous_links_are_recorded_not_hidden():
+    from ghost.run import run
+
+    ds = ROOT / "dataset"
+    if not (ds / "deletion_requests.csv").exists():
+        pytest.skip("dataset not present")
+    aud, _, _ = run(ds, "deletion_requests.csv")
+    assert aud.ambiguities, "positional tie-breaks must be recorded as Ambiguity records"
+    for a in aud.ambiguities:  # a group only exists when several cases were interchangeable
+        assert len(a.case_ids) > 1 and a.chosen
