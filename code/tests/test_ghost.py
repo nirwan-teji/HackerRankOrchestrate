@@ -369,3 +369,23 @@ def test_per_minute_429_is_still_retried():
 
     assert llm_mod._transient(TPM("Rate limit reached ... on tokens per minute (TPM): Limit 8000"))
     assert not llm_mod._transient(TPM("Rate limit reached ... on tokens per day (TPD): Limit 200000"))
+
+
+def test_usage_is_persisted_and_cumulative(tmp_path, monkeypatch):
+    """run_eval.py runs in a different process from main.py, so the usage report can only be right if main.py saves it."""
+    import json
+    import main as entry
+
+    monkeypatch.setattr(entry, "__file__", str(tmp_path / "main.py"))
+    (tmp_path / "evaluation").mkdir()
+    rep = {"model_calls": 3, "cache_hits": 5, "input_tokens": 100, "output_tokens": 40}
+
+    class V:
+        verdict = "agree"
+
+    entry._save_usage(rep, [V(), V()])
+    entry._save_usage({**rep, "model_calls": 2, "cache_hits": 9}, [V()])
+    saved = json.loads((tmp_path / "evaluation" / "run_usage.json").read_text())
+    assert saved["this_run"]["model_calls"] == 2 and saved["this_run"]["cache_hits"] == 9
+    assert saved["cumulative"] == {"model_calls": 5, "input_tokens": 200, "output_tokens": 80}
+    assert saved["review_verdicts"] == {"agree": 1}

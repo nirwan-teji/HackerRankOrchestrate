@@ -800,3 +800,23 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T17:47:18Z] User's merge and push succeeded; fixed usage_report.md showing 0 model calls
+
+User Prompt (verbatim, secrets redacted):
+[screenshot: git commit --no-edit, git pull --no-rebase --no-edit, git push all succeeded; package_submission.py built output.csv, log.txt and code.zip]
+
+Agent Response Summary:
+The merge is resolved and the push went through. Verifying the pushed state, I found the usage report could never show the real run. main.py and run_eval.py are separate processes, so run_eval read its own empty counters and always printed 0 calls and 0 tokens, which the contest's usage_report requirement does not allow. main.py now writes evaluation/run_usage.json (this run, cumulative real calls across resumed runs, reviewer verdict tally), and run_eval reads it. The file is gitignored, because the submitter's final run produces it, but it still ships in code.zip. Added a test; 37 tests pass. The first ~30 reviewer calls predate the file and are noted in the report as roughly 95.4K tokens per the provider console.
+
+Actions:
+* Edited code/main.py, code/evaluation/run_eval.py, code/tests/test_ghost.py, .gitignore
+* Ran the full suite (37 passed); reverted the sandbox's zero-usage report regeneration so no stale artifacts were committed
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

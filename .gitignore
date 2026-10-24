@@ -229,3 +229,6 @@ __pycache__/
 # the challenge evidence is input data, not build output: keep every file the manifest lists (logs included)
 !dataset/evidence/**
 !dataset/**/*.log
+
+# per-run usage written by code/main.py; produced by the final run on the submitter machine and shipped in code.zip
+code/evaluation/run_usage.json

@@ -58,9 +58,36 @@ def main() -> int:
         from orchestrate.llm import USAGE
 
         print("LLM usage:", json.dumps(USAGE.report()))
+        if a.input == "deletion_requests.csv":
+            _save_usage(USAGE.report(), rv)
     except Exception:
         pass
     return 0
+
+
+def _save_usage(report: dict, reviews: list) -> None:
+    """Persist this run's model usage: evaluation/run_usage.json. `run_eval.py` is a separate process, so it cannot read
+    this process's counters; without the file the usage report would always say 0 calls. The cumulative block adds up the
+    real (uncached) calls of every resumed run, because a cache-assisted run reuses answers paid for in an earlier one."""
+    import os
+    import time
+
+    path = Path(__file__).resolve().parent / "evaluation" / "run_usage.json"
+    try:
+        prev = json.loads(path.read_text()).get("cumulative", {})
+    except Exception:
+        prev = {}
+    cum = {k: prev.get(k, 0) + report[k] for k in ("model_calls", "input_tokens", "output_tokens")}
+    tally: dict[str, int] = {}
+    for v in reviews:
+        tally[v.verdict] = tally.get(v.verdict, 0) + 1
+    path.write_text(json.dumps({
+        "written_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "provider": os.getenv("LLM_PROVIDER", "groq"), "model": os.getenv("LLM_MODEL", ""),
+        "intent_llm": os.getenv("GHOST_LLM_INTENT") == "1", "review_llm": os.getenv("GHOST_LLM_REVIEW") == "1",
+        "this_run": {k: report[k] for k in ("model_calls", "cache_hits", "input_tokens", "output_tokens")},
+        "cumulative": cum, "review_verdicts": tally,
+    }, indent=1) + "\n")
 
 
 if __name__ == "__main__":

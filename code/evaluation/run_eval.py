@@ -201,13 +201,16 @@ def main():
     n_unsure = len({r["request_text"] for r in ds_requests if not _intent.rule_intent(r["request_text"])[1]})
 
     # ---- usage_report.md
+    # main.py (a different process) wrote the counters of the run that produced output.csv
     try:
-        from orchestrate.llm import USAGE
-        u = USAGE.report()
+        ru = json.loads((HERE / "run_usage.json").read_text())
     except Exception:
-        u = {"model_calls": 0, "cache_hits": 0, "input_tokens": 0, "output_tokens": 0}
-    provider, model = os.getenv("LLM_PROVIDER", "groq"), os.getenv("LLM_MODEL", "(none)")
-    llm_on = os.getenv("GHOST_LLM_INTENT") == "1"
+        ru = {}
+    u = {**{"model_calls": 0, "cache_hits": 0, "input_tokens": 0, "output_tokens": 0}, **ru.get("this_run", {})}
+    cum = ru.get("cumulative", {"model_calls": 0, "input_tokens": 0, "output_tokens": 0})
+    rverd = ru.get("review_verdicts", {})
+    provider, model = ru.get("provider") or os.getenv("LLM_PROVIDER", "groq"), ru.get("model") or os.getenv("LLM_MODEL", "(none)")
+    llm_on = bool(ru.get("intent_llm") or ru.get("review_llm") or os.getenv("GHOST_LLM_INTENT") == "1")
     n = len(rows)
     tot = u["input_tokens"] + u["output_tokens"]
     price_in, price_out = float(os.getenv("PRICE_IN_PER_MTOK", "0")), float(os.getenv("PRICE_OUT_PER_MTOK", "0"))
@@ -228,9 +231,16 @@ def main():
          f"| input tokens | {u['input_tokens']} |", f"| output tokens | {u['output_tokens']} |",
          f"| total tokens | {tot} |", f"| average tokens per request | {tot / n:.2f} |",
          f"| estimated total cost (USD) | {cost:.4f} |", f"| estimated cost per request (USD) | {cost / n:.6f} |",
+         f"| **cumulative** real model calls, all resumed runs that filled the cache | {cum['model_calls']} |",
+         f"| cumulative input / output tokens | {cum['input_tokens']} / {cum['output_tokens']} |",
+         f"| reviewer verdicts in the run that wrote output.csv | {json.dumps(rverd) if rverd else 'n/a'} |",
          f"| wall-clock runtime for 518 cases | {wall:.1f} s |",
          f"| peak RSS | {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024:.0f} MB |", "",
          "Per-model totals: " + ("see table above (single model)." if llm_on else "no model was called, so every per-model and overall total is 0."), "",
+         "The LLM reviewer's answers are cached on disk, so the final run mostly *reused* answers paid for by earlier, interrupted "
+         "runs; `model calls` / `cache hits` above are for the last process, the `cumulative` rows add up every real call recorded "
+         "since `run_usage.json` was introduced. Calls made before that file existed (the first ~30 reviewer calls and the "
+         "gate runs) are not itemised here; the provider console reported about 95.4K tokens for that stage.", "",
          "### Cost model", "",
          "Set `PRICE_IN_PER_MTOK` / `PRICE_OUT_PER_MTOK` (USD per million tokens) before running to price a run; the free "
          "Groq tier used during development costs 0.", "",
