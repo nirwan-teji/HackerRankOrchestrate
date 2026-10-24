@@ -119,8 +119,8 @@ The agent graph ends with a `review_plan` node. An LLM reads each *risky* plan (
 | item | value |
 |---|---|
 | cases in the default review scope (risky) | 159 of 518 |
-| reviewer enabled for this run | no (set GHOST_LLM_REVIEW=1) |
-| verdicts | n/a |
+| reviewer enabled for this run | yes |
+| verdicts | {"agree": 98, "skipped": 61} |
 
 ## Honest limitations
 

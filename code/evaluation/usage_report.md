@@ -9,7 +9,7 @@ Final full-dataset run that produced `output.csv` (518 requests).
 | log / SQL / JSON / TXT / PDF evidence parsing | deterministic parsers (`pdftotext` for PDFs) | 0 |
 | screenshot (PNG) reading | local RapidOCR, word boxes cached under `ghost/vision_cache/` | 0 (no API) |
 | identity resolution, resource linking, state reconstruction, policy, step ordering | deterministic code | 0 |
-| LLM reviewer of risky plans (advisory, cannot change answers) | one cached call per risky case (159 in scope) | disabled for this run |
+| LLM reviewer of risky plans (advisory, cannot change answers) | one cached call per risky case (159 in scope) | enabled |
 | request-intent check (deletion vs not) | rules first; LangChain LLM second opinion only for texts the rules flag as unsure, one call per *distinct* text, disk-cached | disabled for this run |
 
 ## Totals for this run
@@ -19,15 +19,15 @@ Final full-dataset run that produced `output.csv` (518 requests).
 | model provider | none used |
 | model name | n/a |
 | model calls | 0 |
-| cache hits | 0 |
+| cache hits | 108 |
 | input tokens | 0 |
 | output tokens | 0 |
 | total tokens | 0 |
 | average tokens per request | 0.00 |
 | estimated total cost (USD) | 0.0000 |
 | estimated cost per request (USD) | 0.000000 |
-| wall-clock runtime for 518 cases | 3.4 s |
-| peak RSS | 85 MB |
+| wall-clock runtime for 518 cases | 2.8 s |
+| peak RSS | 122672 MB |
 
 Per-model totals: no model was called, so every per-model and overall total is 0.
 
