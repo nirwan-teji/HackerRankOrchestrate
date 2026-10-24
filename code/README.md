@@ -4,6 +4,7 @@ Decides, for every request, whether a person's data is really gone (`COMPLETE`),
 request never authorised deletion (`NOT_APPLICABLE`), and emits the ordered findings -> remediation -> verification steps.
 
 ## Setup
+From the unzipped `code.zip` (or a clone), copy the challenge `dataset/` folder next to `code/`, then:
 ```bash
 python3 -m venv .venv && source .venv/bin/activate        # Python 3.10+
 pip install -r code/requirements.txt
