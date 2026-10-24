@@ -28,7 +28,7 @@ def run(dataset: Path, input_csv: str, output: Path | None = None, verbose=False
         rows.append({"case_id": c["case_id"], "deletion_status": r.status, "steps_json": json.dumps(to_json(r.steps), separators=(",", ":"))})
     if output:
         with open(output, "w", newline="") as f:
-            w = csv.DictWriter(f, ["case_id", "deletion_status", "steps_json"])
+            w = csv.DictWriter(f, ["case_id", "deletion_status", "steps_json"], lineterminator="\n")  # LF, like the official template
             w.writeheader(); w.writerows(rows)
     return aud, results, rows
 

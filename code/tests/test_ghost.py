@@ -313,3 +313,26 @@ def test_token_estimate_counts_text_images_and_expected_reply():
     assert text == int(4200 / 3.5) + out
     img = llm_mod._estimate_tokens([HumanMessage(content=[{"type": "text", "text": ""}, {"type": "image_url", "image_url": {"url": "d"}}])])
     assert img == 800 + out
+
+
+def test_intent_memo_is_per_configuration(monkeypatch):
+    """Regression: final_run's intent gate (LLM on) leaked its labels into the reviewer gate (LLM off) via the memo."""
+    from ghost import intent
+
+    text = "I found an old report saying my account still existed. Please confirm that the profile is gone."
+    monkeypatch.setattr(intent, "llm_intent", lambda t: "OTHER")
+    monkeypatch.setenv("GHOST_LLM_INTENT", "1")
+    assert intent.classify(text) == "OTHER"          # LLM layer on: model says not a deletion
+    monkeypatch.setenv("GHOST_LLM_INTENT", "0")
+    assert intent.classify(text) == "DELETE"         # LLM layer off: must be the rule answer, not the memoised LLM one
+
+
+def test_output_uses_lf_line_endings_like_the_template(tmp_path):
+    from ghost.run import run
+
+    ds = ROOT / "dataset"
+    if not (ds / "sample_deletion_requests.csv").exists():
+        pytest.skip("dataset not present")
+    out = tmp_path / "o.csv"
+    run(ds, "sample_deletion_requests.csv", out)
+    assert b"\r\n" not in out.read_bytes()

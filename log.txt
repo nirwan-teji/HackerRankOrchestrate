@@ -464,3 +464,23 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-25T01:40:00Z] Reviewer gate passed but on contaminated state: fixed the intent memo leak; output.csv now LF
+
+User Prompt (verbatim, secrets redacted):
+[screenshot: output.csv open in the editor (status bar shows CRLF) and the terminal] python scripts/final_run.py --llm --review: baseline {'status_accuracy': 1.0, 'step_f1': 0.9896, 'exact_case_match': 0.9062}; intent second opinion {'status_accuracy': 0.9375, 'step_f1': 0.9598, 'exact_case_match': 0.8125} -> DROP; link adjudication: not offered; advisory reviewer on the sample risky cases: false alarms 0/6 on correct plans (0%, limit 20%) -> KEEP; 4. full run + reports in progress
+
+Agent Response Summary:
+The reviewer prompt fix worked (0 false alarms), but the gate saw 6 correct plans where the sandbox sees 9, so investigated before trusting it. Ruled out machine nondeterminism (identical output and scope under five PYTHONHASHSEED values) and missing files (all 11 OCR caches tracked). Root cause was my bug: intent labels were memoised per text only, so the reviewer gate (LLM intent off) reused the LLM labels from the intent gate that had flipped two sample cases to NOT_APPLICABLE. The full run is unaffected because it runs in a fresh subprocess. Keyed the memo by configuration, switched output.csv to LF line endings to match the official template (content verified identical), and added regression tests for both.
+
+Actions:
+* code/ghost/intent.py (per-configuration memo), code/ghost/run.py (lineterminator LF), code/tests/test_ghost.py (2 tests, 34 passing)
+* checks: 5 hash seeds, git ls-files of the vision cache, content diff of output.csv vs HEAD
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

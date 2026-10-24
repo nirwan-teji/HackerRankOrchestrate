@@ -52,7 +52,7 @@ def rule_intent(text: str) -> tuple[str, bool]:
     return "DELETE", False
 
 
-_CACHE: dict[str, str] = {}
+_CACHE: dict[tuple, str] = {}
 
 
 def llm_intent(text: str) -> str:
@@ -69,14 +69,16 @@ def llm_intent(text: str) -> str:
 
 
 def classify(text: str, use_llm: bool | None = None) -> str:
-    if text in _CACHE:
-        return _CACHE[text]
-    label, sure = rule_intent(text)
     use = os.getenv("GHOST_LLM_INTENT") == "1" if use_llm is None else use_llm
-    if use and (not sure or os.getenv("GHOST_LLM_INTENT_ALL") == "1"):
+    use_all = os.getenv("GHOST_LLM_INTENT_ALL") == "1"
+    key = (text, use, use_all)  # the memo is per configuration: a rules-only run must never reuse an LLM label, or vice versa
+    if key in _CACHE:
+        return _CACHE[key]
+    label, sure = rule_intent(text)
+    if use and (not sure or use_all):
         try:
             label = llm_intent(text)
         except Exception:  # offline / no key: keep the rule decision
             pass
-    _CACHE[text] = label
+    _CACHE[key] = label
     return label
