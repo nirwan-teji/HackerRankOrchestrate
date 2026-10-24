@@ -46,6 +46,7 @@ class CaseResult:
     subject: Subject | None = None
     resources: list[ResourceState] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    review: object = None  # ghost.review.Review (advisory only; never changes status or steps)
 
 
 class Auditor:

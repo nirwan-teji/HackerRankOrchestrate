@@ -98,6 +98,12 @@ def main():
     amb_sizes = {}
     for g in aud.ambiguities:
         amb_sizes[len(g.case_ids)] = amb_sizes.get(len(g.case_ids), 0) + 1
+    from ghost import review as review_mod  # noqa: E402
+    reviews = {c: r.review for c, r in results.items() if r.review is not None}
+    rv_counts = {}
+    for v in reviews.values():
+        rv_counts[v.verdict] = rv_counts.get(v.verdict, 0) + 1
+    in_scope_n = sum(1 for r in results.values() if review_mod.in_scope(aud, r))
     llm_trail = getattr(aud, "llm_trail", [])
     trail_counts = {}
     for t in llm_trail:
@@ -160,6 +166,7 @@ def main():
           + (json.dumps(trail_counts) if trail_counts else "layer disabled (deterministic run)") + ".", "",
           "A rank-consistency derivation was also tried and rejected: the worker's per-case ordering is consistent for "
           "account events but *inverted* for the analytics events of cases 27/28, so it cannot replace the tie-break.", "",
+          "@@REVIEW@@",
           "## Honest limitations", "",
           "* Only 32 labelled cases exist, so hidden-set quality is estimated from them; families that occur only in the hidden set "
           "(screenshot/PDF single-artifact cases) are handled by the same rules but cannot be scored locally.",
@@ -168,7 +175,22 @@ def main():
           "positional (time order vs case order) and can be wrong - quantified in section 4.",
           "* The public samples are both the tuning set and the only scoring set, so these metrics are optimistic for the hidden "
           "set. The uncertainty budget in section 4 is the honest lower bound on where hidden-set errors will come from.", ""]
-    (HERE / "evaluation_report.md").write_text("\n".join(L))
+    rv_lines = ["## 5. LLM reviewer (advisory only)", "",
+                "The agent graph ends with a `review_plan` node. An LLM reads each *risky* plan (a guessed link, a convention-derived "
+                "account or an unestablished state) next to the policy table and raises flags when the plan is inconsistent with the "
+                "policy or with the states the engine established. **It cannot change the status or any step**: flags about resources "
+                "it was never shown are discarded, and a unit test asserts that a reviewer that objects to everything leaves "
+                "`output.csv` byte-identical. The design follows the measured failure of letting a model choose links (section 4).", "",
+                "| item | value |", "|---|---|",
+                f"| cases in the default review scope (risky) | {in_scope_n} of {len(rows)} |",
+                f"| reviewer enabled for this run | {'yes' if review_mod.enabled() else 'no (set GHOST_LLM_REVIEW=1)'} |",
+                f"| verdicts | {json.dumps(rv_counts) if rv_counts else 'n/a'} |", ""]
+    flagged = [(c, v) for c, v in sorted(reviews.items()) if v.verdict == "concerns"]
+    if flagged:
+        rv_lines += ["Flagged cases (for a human to look at; none were altered):", ""]
+        rv_lines += [f"* `{c}`: " + "; ".join(f"[{i['kind']}] {i['resource_id']} - {i['explanation']}" for i in v.issues) for c, v in flagged[:40]] + [""]
+    text = "\n".join(L).replace("@@REVIEW@@", "\n".join(rv_lines))
+    (HERE / "evaluation_report.md").write_text(text)
 
     # ---- usage_report.md
     try:
@@ -189,6 +211,7 @@ def main():
          "| log / SQL / JSON / TXT / PDF evidence parsing | deterministic parsers (`pdftotext` for PDFs) | 0 |",
          "| screenshot (PNG) reading | local RapidOCR, word boxes cached under `ghost/vision_cache/` | 0 (no API) |",
          "| identity resolution, resource linking, state reconstruction, policy, step ordering | deterministic code | 0 |",
+         f"| LLM reviewer of risky plans (advisory, cannot change answers) | one cached call per risky case ({in_scope_n} in scope) | {'enabled' if review_mod.enabled() else 'disabled for this run'} |",
          f"| request-intent check (deletion vs not) | rules first; LangChain LLM second opinion only for texts the rules flag as unsure, one call per *distinct* text, disk-cached | {'enabled' if llm_on else 'disabled for this run'} |", "",
          "## Totals for this run", "",
          "| item | value |", "|---|---|",

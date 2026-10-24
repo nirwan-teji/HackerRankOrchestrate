@@ -112,6 +112,16 @@ Outcomes of the adjudication layer in *this* run: layer disabled (deterministic 
 
 A rank-consistency derivation was also tried and rejected: the worker's per-case ordering is consistent for account events but *inverted* for the analytics events of cases 27/28, so it cannot replace the tie-break.
 
+## 5. LLM reviewer (advisory only)
+
+The agent graph ends with a `review_plan` node. An LLM reads each *risky* plan (a guessed link, a convention-derived account or an unestablished state) next to the policy table and raises flags when the plan is inconsistent with the policy or with the states the engine established. **It cannot change the status or any step**: flags about resources it was never shown are discarded, and a unit test asserts that a reviewer that objects to everything leaves `output.csv` byte-identical. The design follows the measured failure of letting a model choose links (section 4).
+
+| item | value |
+|---|---|
+| cases in the default review scope (risky) | 159 of 518 |
+| reviewer enabled for this run | no (set GHOST_LLM_REVIEW=1) |
+| verdicts | n/a |
+
 ## Honest limitations
 
 * Only 32 labelled cases exist, so hidden-set quality is estimated from them; families that occur only in the hidden set (screenshot/PDF single-artifact cases) are handled by the same rules but cannot be scored locally.

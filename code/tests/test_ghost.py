@@ -184,3 +184,83 @@ def test_every_manifest_file_is_committed_not_gitignored():
     tracked = set(subprocess.run(["git", "ls-files", "dataset/evidence"], cwd=ROOT, capture_output=True, text=True).stdout.split())
     missing = [r["file_path"] for r in csv.DictReader(open(man)) if f"dataset/{r['file_path']}" not in tracked]
     assert not missing, f"{len(missing)} evidence files are not tracked by git, e.g. {missing[:3]}"
+
+
+# ---- reviewer: advisory only -------------------------------------------------------------------------------------------
+def _run_samples_with_fake_review(monkeypatch, replies):
+    from ghost import review as R
+    from ghost.run import run
+
+    ds = ROOT / "dataset"
+    if not (ds / "sample_deletion_requests.csv").exists():
+        pytest.skip("dataset not present")
+
+    class Out:
+        def __init__(self, v, issues):
+            self.verdict, self.issues = v, issues
+
+    class Iss:
+        def __init__(self, kind, rid, expl):
+            self.kind, self.resource_id, self.explanation = kind, rid, expl
+
+    def fake_review_case(aud, res):
+        kind = replies(res)
+        return R.Review(res.case_id, "concerns" if kind else "agree", kind or [])
+
+    monkeypatch.setenv("GHOST_LLM_REVIEW", "1")
+    monkeypatch.setenv("GHOST_REVIEW_SCOPE", "all")
+    monkeypatch.setattr(R, "review_case", fake_review_case)
+    return run(ds, "sample_deletion_requests.csv")
+
+
+def test_reviewer_flags_never_change_the_answer(monkeypatch):
+    from ghost.run import run
+
+    ds = ROOT / "dataset"
+    if not (ds / "sample_deletion_requests.csv").exists():
+        pytest.skip("dataset not present")
+    monkeypatch.delenv("GHOST_LLM_REVIEW", raising=False)
+    _, _, base = run(ds, "sample_deletion_requests.csv")
+    # a reviewer that objects to everything must still leave the output byte-identical
+    aud, results, rows = _run_samples_with_fake_review(
+        monkeypatch, lambda res: [{"kind": "other", "resource_id": res.resources[0].rid, "explanation": "x"}])
+    assert rows == base
+    assert any(r.review and r.review.verdict == "concerns" for r in results.values())
+
+
+def test_reviewer_discards_flags_about_resources_it_was_never_shown(monkeypatch):
+    llm_mod = pytest.importorskip("orchestrate.llm")
+    from ghost import review as R
+    from ghost.run import run
+
+    ds = ROOT / "dataset"
+    if not (ds / "sample_deletion_requests.csv").exists():
+        pytest.skip("dataset not present")
+    aud, results, _ = run(ds, "sample_deletion_requests.csv")
+    res = next(r for r in results.values() if r.status == "INCOMPLETE")
+    real = res.resources[0].rid
+
+    class Iss:
+        def __init__(self, rid): self.kind, self.resource_id, self.explanation = "other", rid, "x"
+
+    class Out:
+        verdict = "concerns"
+        issues = [Iss("account_does_not_exist"), Iss(real)]
+
+    monkeypatch.setattr(llm_mod, "ask", lambda *a, **k: Out())
+    rv = R.review_case(aud, res)
+    assert [i["resource_id"] for i in rv.issues] == [real]
+
+
+def test_reviewer_scope_only_covers_uncertain_cases(monkeypatch):
+    from ghost import review as R
+    from ghost.run import run
+
+    ds = ROOT / "dataset"
+    if not (ds / "deletion_requests.csv").exists():
+        pytest.skip("dataset not present")
+    monkeypatch.delenv("GHOST_REVIEW_SCOPE", raising=False)
+    aud, results, _ = run(ds, "deletion_requests.csv")
+    scoped = [c for c, r in results.items() if R.in_scope(aud, r)]
+    assert 0 < len(scoped) < len(results) // 2  # risky subset, not everything
+    assert all(any(x.via in ("guess", "convention", "alias") or x.state == "UNKNOWN" for x in results[c].resources) for c in scoped)

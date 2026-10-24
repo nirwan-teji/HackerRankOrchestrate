@@ -1,6 +1,6 @@
 """The per-case audit agent as a LangGraph state machine.
 
-  classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> plan_steps
+  classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> plan_steps -> review_plan (optional, advisory)
         |                  |
         +-- NOT_APPLICABLE +-- unresolved identity (no authorised, attributable subject: nothing to audit)
 
@@ -13,6 +13,9 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, StateGraph
 
+import os
+
+from . import review as review_mod
 from .engine import Auditor, CaseResult
 
 
@@ -47,6 +50,20 @@ def build_graph(aud: Auditor):
         res.steps, res.status, res.resources = aud.stage_plan(res.resources)
         return {"result": res}
 
+    budget = {"used": 0}
+
+    def review_plan(s: AuditState) -> AuditState:
+        """Advisory LLM review of risky plans. Flags only: it can never alter the status or the steps."""
+        res = s["result"]
+        if review_mod.enabled() and review_mod.in_scope(aud, res):
+            cap = int(os.getenv("GHOST_REVIEW_MAX", "0") or 0)
+            if cap and budget["used"] >= cap:
+                res.review = review_mod.Review(res.case_id, "skipped", reason="review cap reached")
+            else:
+                budget["used"] += 1
+                res.review = review_mod.review_case(aud, res)
+        return {"result": res}
+
     def not_applicable(s: AuditState) -> AuditState:
         res = CaseResult(s["cid"], "NOT_APPLICABLE", subject=aud.subj[s["cid"]])
         res.notes.append("request does not authorise deletion")
@@ -55,14 +72,15 @@ def build_graph(aud: Auditor):
     g = StateGraph(AuditState)
     for name, fn in [("classify_intent", classify_intent), ("not_applicable", not_applicable),
                      ("resolve_identity", resolve_identity), ("link_resources", link_resources),
-                     ("reconstruct_state", reconstruct_state), ("plan_steps", plan_steps)]:
+                     ("reconstruct_state", reconstruct_state), ("plan_steps", plan_steps), ("review_plan", review_plan)]:
         g.add_node(name, fn)
     g.set_entry_point("classify_intent")
     g.add_conditional_edges("classify_intent", lambda s: "resolve_identity" if s["intent"] == "DELETE" else "not_applicable")
     g.add_conditional_edges("resolve_identity", lambda s: "link_resources" if s["result"].subject else END)
     g.add_edge("link_resources", "reconstruct_state")
     g.add_edge("reconstruct_state", "plan_steps")
-    g.add_edge("plan_steps", END)
+    g.add_edge("plan_steps", "review_plan")
+    g.add_edge("review_plan", END)
     g.add_edge("not_applicable", END)
     return g.compile()
 

@@ -362,3 +362,24 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T22:50:00Z] Add an advisory LLM reviewer node; verified the data gives an LLM nothing else to read
+
+User Prompt (verbatim, secrets redacted):
+Okay I thought we were not using LLM anywhere , go ahead make the best system younwant so I can score 100/100 🥲
+
+Agent Response Summary:
+Checked the data before adding model calls. Free text in the evidence is fully templated (only emails/phones, which the regexes already catch), so an LLM PII reader would add nothing; a structural-signature scan of the 508 audited hidden cases found no outlier families beyond the known unobservable audit records. Built an advisory LLM reviewer as a LangGraph node (ghost/review.py): it checks the ~159 risky plans against the policy table and raises flags but cannot alter status or steps (a test proves output.csv stays byte-identical even when the reviewer objects to everything; flags about unseen resources are discarded). Wired it into main.py, run_eval.py (report section 5, usage table) and added scripts/llm_review_check.py. Told the user plainly that 100/100 cannot be promised.
+
+Actions:
+* code/ghost/review.py (new), code/ghost/pipeline.py (review_plan node), code/ghost/engine.py (CaseResult.review)
+* code/main.py, code/evaluation/run_eval.py, code/README.md, .env.example, scripts/llm_review_check.py
+* code/tests/test_ghost.py (3 new tests; 28 passing); output.csv unchanged
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

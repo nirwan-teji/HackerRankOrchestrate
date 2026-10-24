@@ -21,13 +21,14 @@ python code/evaluation/custom_cases.py    # the team-written evaluation scenario
 python scripts/llm_selftest.py            # verify provider/key/model before enabling the LLM layer
 python scripts/llm_ab.py                  # model vs positional link accuracy on the public samples
 python scripts/llm_intent_check.py        # where the model and the intent rules disagree
+python scripts/llm_review_check.py        # what the LLM reviewer says about the public sample plans
 pytest -q code/tests                      # unit + regression tests
 ```
 The full 518-case run takes ~3 s and is deterministic (no randomness, stable ordering, cached OCR).
 
 ## How it works (the model describes, code decides)
 ```
-classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> plan_steps      (LangGraph, ghost/pipeline.py)
+classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> plan_steps -> review_plan   (LangGraph, ghost/pipeline.py)
 ```
 1. **Intent** (`intent.py`): multilingual rules decide whether the text authorises deletion; optional LangChain LLM second
    opinion (`GHOST_LLM_INTENT=1`) for unsure texts only. A `CLASSIFY_REQUEST ... non-deletion` activity corroborates.
@@ -48,6 +49,8 @@ classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> pl
    samples it got 1/8 links right vs 7/8 for the positional rule, so it is kept as a documented ablation only.
 7. **Policy** (`steps.py`): `deletion_rules.csv` semantics -> DELETE / REDACT / ANONYMIZE / RETAIN / restore block / flow
    disable; steps are ordered by phase, operation table order, `system_id`, `resource_id`; `validate.py` enforces the contract.
+8. **LLM reviewer** (`review.py`, `GHOST_LLM_REVIEW=1`): for the ~30% of cases with a guessed link or an unestablished state, a model
+   checks the plan against the policy table and raises flags. Advisory only - a test proves it cannot change `output.csv`.
 
 ## Layout
 `main.py` entry point - `ghost/` engine - `orchestrate/` provider-agnostic LangChain client (cache, retry, usage) -

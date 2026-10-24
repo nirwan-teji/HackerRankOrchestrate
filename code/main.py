@@ -41,6 +41,15 @@ def main() -> int:
     for r in rows:
         by[r["deletion_status"]] = by.get(r["deletion_status"], 0) + 1
     print(f"wrote {len(rows)} rows to {a.output}: {by}")
+    rv = [r.review for r in results.values() if r.review is not None]
+    if rv:
+        tally = {}
+        for v in rv:
+            tally[v.verdict] = tally.get(v.verdict, 0) + 1
+        print(f"LLM reviewer (advisory, answers unchanged): {tally}")
+        for v in rv:
+            if v.verdict == "concerns":
+                print(f"  {v.case_id}: " + "; ".join(f"[{i['kind']}] {i['resource_id']}" for i in v.issues))
     if a.eval:
         pred = {r["case_id"]: (r["deletion_status"], json.loads(r["steps_json"])) for r in rows}
         s = score(pred, load(a.eval))
