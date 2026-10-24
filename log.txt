@@ -279,3 +279,24 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T20:40:00Z] Self-test passes 1-3; found 26 evidence logs missing from the repo (.gitignore *.log)
+
+User Prompt (verbatim, secrets redacted):
+[screenshot of the terminal] git pull fast-forwarded to 09c9d1b; python3 scripts/llm_selftest.py: [1/4] completion OK; [2/4] structured output OK (mode: json_schema); [3/4] intent classification 4/4 correct; then FileNotFoundError: dataset/evidence/logs/service_events_ap_south_20260915.log in Dataset.load during check 4.
+
+Agent Response Summary:
+The structured-output fix worked on real Groq (json_schema mode, 4/4 intent). The crash in check 4 exposed a packaging defect: the repo .gitignore contains *.log, so all 26 log evidence files were never committed and a fresh clone silently lacked 26 of 95 evidence files, which would have produced a different output.csv on the user's machine. Fixed the ignore rule, committed the logs, made Dataset.load refuse to run (with a clear message) when any manifest file is missing, and added a regression test that every manifest file is git-tracked.
+
+Actions:
+* .gitignore (negate dataset/evidence), git add of 26 log files
+* code/ghost/data.py (fail loudly on missing evidence), code/tests/test_ghost.py (tracked-files test)
+* re-ran code/main.py: output.csv unchanged
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

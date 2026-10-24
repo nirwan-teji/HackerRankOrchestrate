@@ -171,3 +171,16 @@ def test_bad_request_errors_are_not_retried():
         status_code = 429
 
     assert not llm_mod._transient(E()) and llm_mod._transient(R429()) and llm_mod._transient(TimeoutError())
+
+
+def test_every_manifest_file_is_committed_not_gitignored():
+    """Regression: `*.log` in .gitignore once kept all 26 log evidence files out of the repo, so a fresh clone gave different answers."""
+    import csv
+    import subprocess
+
+    man = ROOT / "dataset" / "evidence_files.csv"
+    if not man.exists() or not (ROOT / ".git").exists():
+        pytest.skip("needs the dataset and a git checkout")
+    tracked = set(subprocess.run(["git", "ls-files", "dataset/evidence"], cwd=ROOT, capture_output=True, text=True).stdout.split())
+    missing = [r["file_path"] for r in csv.DictReader(open(man)) if f"dataset/{r['file_path']}" not in tracked]
+    assert not missing, f"{len(missing)} evidence files are not tracked by git, e.g. {missing[:3]}"

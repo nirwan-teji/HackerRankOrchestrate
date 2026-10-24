@@ -38,6 +38,10 @@ class Dataset:
     def load(cls, root) -> "Dataset":
         root = Path(root)
         rd = lambda n: list(csv.DictReader(open(root / n, encoding="utf-8")))
+        missing = [m["file_path"] for m in rd("evidence_files.csv") if not (root / m["file_path"]).exists()]
+        if missing:  # a partial dataset silently changes the answers, so refuse to run
+            raise SystemExit(f"{len(missing)} evidence file(s) listed in evidence_files.csv are missing under {root}, e.g. "
+                             f"{missing[:3]}.\nRe-copy the full dataset/ folder (the official starter repo has every file).")
         ds = cls(root, rd("user_identities.csv"), rd("user_audit_log.csv"), rd("system_activity.csv"),
                  rd("deletion_rules.csv"), rd("evidence_files.csv"))
         ds.obs, ds.scopes = load_all(root, ds.manifest)

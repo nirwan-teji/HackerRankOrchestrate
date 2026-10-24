@@ -225,3 +225,7 @@ __marimo__/
 submission/
 __pycache__/
 *.pyc
+
+# the challenge evidence is input data, not build output: keep every file the manifest lists (logs included)
+!dataset/evidence/**
+!dataset/**/*.log
