@@ -425,3 +425,23 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-25T00:30:00Z] Final submission runner with evidence-gated LLM layers
+
+User Prompt (verbatim, secrets redacted):
+Ohkay so do one thing make the perfect agent from.your side a mix n match of deterministic and LLM based model that shall outperform all other people submitting on the platform and then I will run it and save the output.csv code and other artifacts to be submitted and see how much of score can I get 🥲
+
+Agent Response Summary:
+Said plainly that beating every participant cannot be promised. Audited the current output first: all 512 COMPLETE verifications cite evidence files and only 1 of 701 findings falls back to an activity id, so the deterministic core is close to what this data supports. Built scripts/final_run.py as the single submission command: preflight (dataset completeness, key), deterministic baseline on the 32 samples, then each LLM layer is enabled only if it earns its place (intent second opinion kept only if sample status accuracy and step F1 do not drop; reviewer kept only if <=20% false alarms on correct sample plans; link adjudication not offered after measuring 1/8 vs 7/8), then the full run, reports, tests, packaging and a checklist. Verified it end to end here (deterministic path) and that --llm without a key falls back cleanly; output.csv unchanged.
+
+Actions:
+* scripts/final_run.py (new), code/README.md (layer-gating table)
+* ran: python scripts/final_run.py (59 s, 32 tests passed, submission/ built), python scripts/final_run.py --llm --review --skip-tests (no key -> deterministic)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

@@ -14,6 +14,7 @@ cp .env.example .env                                       # only needed for the
 
 ## Run
 ```bash
+python scripts/final_run.py [--llm] [--review]   # everything for the submission: gated LLM layers, run, reports, tests, package
 python code/main.py                       # reads dataset/, writes output.csv at the repo root, validates the contract
 python code/main.py --dataset D --input sample_deletion_requests.csv --output /tmp/s.csv --eval D/sample_output.csv
 python code/evaluation/run_eval.py        # regenerates evaluation/evaluation_report.md and usage_report.md
@@ -51,6 +52,17 @@ classify_intent -> resolve_identity -> link_resources -> reconstruct_state -> pl
    disable; steps are ordered by phase, operation table order, `system_id`, `resource_id`; `validate.py` enforces the contract.
 8. **LLM reviewer** (`review.py`, `GHOST_LLM_REVIEW=1`): for the ~30% of cases with a guessed link or an unestablished state, a model
    checks the plan against the policy table and raises flags. Advisory only - a test proves it cannot change `output.csv`.
+
+## How the LLM layers are chosen
+Each LLM layer is a candidate that must earn its place against the 32 public answers (`scripts/final_run.py`):
+
+| layer | role | gate | measured |
+|---|---|---|---|
+| intent second opinion | decides deletion-vs-not for the 3 texts the rules are unsure about | kept only if sample status accuracy and step F1 do not drop | 4/4 on the self-test |
+| link adjudication | choose between interchangeable resource/case pairings | not offered | 1/8 vs 7/8 for the rule - off |
+| advisory reviewer | flag inconsistent plans in risky cases; cannot change answers | kept only if <=20% false alarms on correct sample plans | 7/9 false alarms before the prompt fix; re-measure |
+
+The deterministic engine therefore owns every answer, and a model only contributes where it was shown not to hurt.
 
 ## Layout
 `main.py` entry point - `ghost/` engine - `orchestrate/` provider-agnostic LangChain client (cache, retry, usage) -
