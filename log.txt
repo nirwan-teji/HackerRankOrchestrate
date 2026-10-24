@@ -320,3 +320,24 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T21:40:00Z] A/B result: LLM link adjudication is worse than the positional rule -> keep it off
+
+User Prompt (verbatim, secrets redacted):
+[screenshot of the terminal] git pull brought llm_ab.py; python3 scripts/llm_ab.py printed: 80 ambiguity groups, 5 scorable; group account [case_28, case_29]: applied-llm-pairing, positional ok, llm WRONG for both; group account [case_23, case_547, case_548]: applied-llm-pairing, positional WRONG, llm ok (account_410); group analytics [case_27, case_28]: llm WRONG for both; group analytics [case_25, case_26]: llm WRONG for both; group analytics [case_03, case_44]: llm WRONG (analytics_5589 instead of analytics_9406). Summary line: scorable links: 8   positional correct: 7   LLM correct: 1.
+
+Agent Response Summary:
+The measurement settles the question: gpt-oss-120b adjudication got 1/8 links right against 7/8 for the positional tie-break, replacing a correct pairing with a wrong one in 4 of 5 groups. The deterministic validator cannot prevent this because both orderings satisfy every constraint; the data contains no signal that separates them, so the model is effectively guessing. Decision: GHOST_LLM_LINKS stays 0 in the submitted run; the adjudicator is retained as a documented, tested ablation. Recorded the numbers and the decision in the evaluation report, README and .env.example, and added scripts/llm_intent_check.py to decide whether the intent layer (which scored 4/4) adds value on the full request set.
+
+Actions:
+* code/evaluation/run_eval.py (measured ablation section), code/README.md, .env.example
+* scripts/llm_intent_check.py (new)
+* regenerated code/evaluation/evaluation_report.md; pytest 20 passed
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

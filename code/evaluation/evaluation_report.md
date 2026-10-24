@@ -67,6 +67,7 @@ analysis below drove each change; the numbers are the sample step-F1 after the c
 
 ### Decisions that were tested and rejected
 * **Strict capture-time gating** (ignore every file captured after `audit_at`): sample F1 0.974 vs 0.990, exact match 78% vs 91%. The gold answers use observations whose own timestamp precedes the cutoff even when the containing export was assembled later, so observation time decides the state and capture time only restricts citation.
+* **LLM adjudication of ambiguous links** (gpt-oss-120b): 1/8 correct vs 7/8 for the positional rule (see section 4). Where the model genuinely helps is request-intent classification (4/4 on the self-test), so the LLM is used there and not for linking.
 * **Rank-consistency linking** (assume the worker processes a cluster's cases in one fixed order across resource types): holds for the account events of cases 27/28/29 but is inverted for their analytics events, so it cannot replace the positional tie-break.
 * **`CACHE_ENTRY` / `EMAIL_DELIVERY_LOG` resources**: `deletion_rules.csv` defines treatments for both, and `system_activity.csv` contains 284 cache and 368 e-mail-delivery events, but **no evidence file ever observes one**. They are decoys: a finding must cite evidence, so none can be raised. The public gold answers never mention them, which corroborates the reading.
 
@@ -96,11 +97,20 @@ A resource/case link is *derived* when elimination leaves exactly one compatible
 
 So the guessing affects a bounded slice of the step score and none of the statuses. Groups of size 2 are a coin flip in the worst case; the measured sample accuracy is better than that because the positional order usually matches the worker's processing order.
 
-### LLM adjudication of those guesses
+### LLM adjudication of those guesses: measured, and it does not help
 
-`GHOST_LLM_LINKS=1` routes each ambiguity group to the configured model, which sees the candidate resources and the per-case facts and proposes a pairing. The proposal is accepted only if it is a permutation of the group and passes the same deterministic constraints (time window, claim consistency, anchoring evidence, identifier ownership); otherwise the positional result stands. Outcomes for this run: the layer was disabled (deterministic run).
+`GHOST_LLM_LINKS=1` routes each ambiguity group to the configured model, which sees the candidate resources and the per-case facts and proposes a pairing; the proposal is accepted only if it is a permutation of the group and passes the same deterministic constraints. It was evaluated against the public answers (`scripts/llm_ab.py`, openai/gpt-oss-120b on Groq, json_schema structured output):
 
-A rank-consistency derivation was tried first and rejected: the worker's per-case ordering is consistent for account events but *inverted* for the analytics events of cases 27/28, so it cannot replace the tie-break.
+| link chooser | correct links (8 scorable, in 5 groups) |
+|---|---|
+| positional rule (time order vs case order) | **7 / 8** |
+| gpt-oss-120b adjudicator | **1 / 8** |
+
+The model replaced a correct pairing with a wrong one in 4 of the 5 groups and was right only on `account_410` (case_23), the one place the positional rule fails. The deterministic validator cannot catch these swaps because both orderings satisfy every constraint; the constraints that *would* separate them are exactly what the data does not contain, so the model has no extra signal and effectively guesses. **Decision: `GHOST_LLM_LINKS` stays 0 in the submitted run.** The adjudicator is kept as a documented, tested ablation, not as a hidden dependency. (8 links is a small sample, but a 1/8 vs 7/8 gap is far outside noise.)
+
+Outcomes of the adjudication layer in *this* run: layer disabled (deterministic run).
+
+A rank-consistency derivation was also tried and rejected: the worker's per-case ordering is consistent for account events but *inverted* for the analytics events of cases 27/28, so it cannot replace the tie-break.
 
 ## Honest limitations
 

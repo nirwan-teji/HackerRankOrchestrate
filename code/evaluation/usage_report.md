@@ -25,7 +25,7 @@ Final full-dataset run that produced `output.csv` (518 requests).
 | average tokens per request | 0.00 |
 | estimated total cost (USD) | 0.0000 |
 | estimated cost per request (USD) | 0.000000 |
-| wall-clock runtime for 518 cases | 3.4 s |
+| wall-clock runtime for 518 cases | 3.2 s |
 | peak RSS | 84 MB |
 
 Per-model totals: no model was called, so every per-model and overall total is 0.
