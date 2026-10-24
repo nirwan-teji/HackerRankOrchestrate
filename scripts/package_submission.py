@@ -10,10 +10,15 @@ SKIP_SUFFIX = {".pyc", ".csv"}  # note: evaluation/*.md and ghost/vision_cache/*
 out = ROOT / "submission"
 out.mkdir(exist_ok=True)
 
+# Paths inside the zip mirror the repo (code/main.py, scripts/final_run.py, ...), so the README commands work after
+# unzipping and placing the challenge dataset/ folder next to code/.
+INCLUDE = ["code", "scripts", "tests", "README.md", ".env.example"]
 with zipfile.ZipFile(out / "code.zip", "w", zipfile.ZIP_DEFLATED) as z:
-    for p in (ROOT / "code").rglob("*"):
-        if p.is_file() and not (set(p.relative_to(ROOT).parts) & SKIP_DIRS) and p.suffix not in SKIP_SUFFIX and p.name != ".env":
-            z.write(p, p.relative_to(ROOT / "code"))
+    for top in INCLUDE:
+        base = ROOT / top
+        for p in sorted([base] if base.is_file() else base.rglob("*")):
+            if p.is_file() and not (set(p.relative_to(ROOT).parts) & SKIP_DIRS) and p.suffix not in SKIP_SUFFIX and p.name != ".env":
+                z.write(p, p.relative_to(ROOT).as_posix())
 
 if len(sys.argv) > 1:
     shutil.copy(sys.argv[1], out / "output.csv")
