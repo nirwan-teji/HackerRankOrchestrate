@@ -820,3 +820,22 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T17:55:52Z] Final run on the usage-fix code: 100 reviewed, 59 skipped, answers unchanged
+
+User Prompt (verbatim, secrets redacted):
+[screenshot: final_run.py --llm --review completed. Reviewer verdicts agree 100, skipped 59; wrote 518 rows INCOMPLETE 352 / COMPLETE 156 / NOT_APPLICABLE 10; LLM usage model_calls 2, cache_hits 98, input_tokens 3483, output_tokens 957; samples status 100%, step F1 99.0%, exact 90.6%; custom 5/5; violations 0; 37 tests passed; code.zip 107 KB, output.csv 619 KB, log.txt 50 KB; total time 112 s]
+
+Agent Response Summary:
+The run behaved as designed. The cache supplied 98 reviews, 2 new calls were made before the daily quota tripped the breaker, and the remaining 59 risky cases were marked skipped. The reviewer raised no concerns on the 100 cases it did review, and output.csv is unchanged (352/156/10). The intent layer was dropped by its gate. The submission package was rebuilt with the corrected usage persistence. Remaining steps for the user are to re-pull the latest log.txt, re-package, upload, and do the interview. The other 59 reviews can be completed after the quota resets by re-running the same command.
+
+Actions:
+* none (verification of user's screenshot)
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
