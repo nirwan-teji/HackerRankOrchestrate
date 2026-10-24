@@ -56,7 +56,9 @@ def main() -> int:
 
     try:
         p = ask("Answer strictly as JSON.", "Is 7 greater than 3?", schema=Probe)
-        print(f"[2/4] structured output     : {'OK' if p.answer else 'returned false (model is weak at JSON)'}")
+        from orchestrate.llm import _WORKING
+
+        print(f"[2/4] structured output     : {'OK' if p.answer else 'returned false (model is weak at JSON)'} (mode: {_WORKING.get(s.model, '?')})")
     except Exception as e:
         print(f"[2/4] structured output     : FAILED {type(e).__name__}: {str(e)[:200]}")
         print("      -> leave GHOST_LLM_INTENT=0 / GHOST_LLM_LINKS=0, or switch LLM_MODEL to one with tool-calling support")

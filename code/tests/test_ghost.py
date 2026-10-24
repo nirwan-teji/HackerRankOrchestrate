@@ -111,3 +111,63 @@ def test_ambiguous_links_are_recorded_not_hidden():
     assert aud.ambiguities, "positional tie-breaks must be recorded as Ambiguity records"
     for a in aud.ambiguities:  # a group only exists when several cases were interchangeable
         assert len(a.case_ids) > 1 and a.chosen
+
+
+# ---- structured-output fallback (regression for Groq gpt-oss rejecting function calling) -------------------------------
+def _fake_llm(accepts: set[str], plain_reply: str = '{"authorises_deletion": true, "reason": "ok"}'):
+    from langchain_core.messages import AIMessage
+    from pydantic import BaseModel
+
+    class Bad(Exception):
+        status_code = 400
+
+    class Runnable:
+        def __init__(self, method):
+            self.method = method
+
+        def invoke(self, messages):
+            if self.method not in accepts:
+                raise Bad("Tool call validation failed: attempted to call tool 'json' which was not in request.tools")
+            return {"raw": AIMessage(content="x"), "parsed": self.schema(authorises_deletion=True, reason="ok")}
+
+    class Fake:
+        calls = []
+
+        def with_structured_output(self, schema, method="function_calling", include_raw=False):
+            Fake.calls.append(method)
+            r = Runnable(method); r.schema = schema
+            return r
+
+        def invoke(self, messages):
+            return AIMessage(content="Sure! " + plain_reply)
+
+    return Fake()
+
+
+@pytest.mark.parametrize("accepts,expect_method", [({"json_schema"}, "json_schema"), ({"json_mode"}, "json_mode"), ({"function_calling"}, "function_calling"), (set(), "plain_json")])
+def test_structured_output_falls_back_until_a_mode_works(accepts, expect_method):
+    llm_mod = pytest.importorskip("orchestrate.llm")
+    from langchain_core.messages import HumanMessage, SystemMessage
+    from pydantic import BaseModel
+
+    class Intent(BaseModel):
+        authorises_deletion: bool
+        reason: str
+
+    llm_mod._WORKING.clear()
+    fake = _fake_llm(accepts)
+    out = llm_mod._structured(fake, Intent, [SystemMessage(content="s"), HumanMessage(content="u")], "m")
+    assert out.authorises_deletion is True
+    assert llm_mod._WORKING["m"] == expect_method
+
+
+def test_bad_request_errors_are_not_retried():
+    llm_mod = pytest.importorskip("orchestrate.llm")
+
+    class E(Exception):
+        status_code = 400
+
+    class R429(Exception):
+        status_code = 429
+
+    assert not llm_mod._transient(E()) and llm_mod._transient(R429()) and llm_mod._transient(TimeoutError())

@@ -258,3 +258,24 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T20:10:00Z] Fix structured-output failure on Groq gpt-oss found by the self-test
+
+User Prompt (verbatim, secrets redacted):
+[screenshot of the terminal] git pull succeeded; python3 scripts/llm_selftest.py printed: provider=groq model=openai/gpt-oss-120b ... [1/4] completion: OK ('OK'); [2/4] structured output: FAILED BadRequestError: Error code: 400 - Tool call validation failed: attempted to call tool 'json' which was not in request.tools -> leave GHOST_LLM_INTENT=0 / GHOST_LLM_LINKS=0, or switch LLM_MODEL to one with tool-calling support
+
+Agent Response Summary:
+The self-test showed the key and model work (completion OK) but LangChain's default function-calling structured output is rejected by Groq for gpt-oss. Changed orchestrate/llm.py to try json_schema, then json_mode, then function_calling, then plain-JSON parsing, remember the mode that works per model, and stop retrying 400-class errors (previously retried 5 times with backoff). Added regression tests with a fake provider for each mode and for the retry rule. Not verified against real Groq from this sandbox; the user must re-run the self-test.
+
+Actions:
+* code/orchestrate/llm.py (_structured, _transient, mode fallback chain)
+* code/tests/test_ghost.py (5 new tests, 20 passing)
+* scripts/llm_selftest.py (prints which structured-output mode worked)
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none
