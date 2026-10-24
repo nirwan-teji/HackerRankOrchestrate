@@ -42,8 +42,8 @@ def parse_line(line: str) -> dict | None:
     if rest.startswith("<"):  # syslog: <15>1 host app trace - - k=v...
         parts = rest.split(None, 7)
         d.update(kv_pairs(rest))
-        d["service"] = parts[3] if len(parts) > 3 else ""
-        d["trace"] = parts[4] if len(parts) > 4 else ""
+        d["service"] = parts[2] if len(parts) > 2 else ""
+        d["trace"] = parts[3] if len(parts) > 3 else ""
         return d
     if rest.startswith("requestId="):  # cloud runtime export
         outer = kv_pairs(rest.split(" message=", 1)[0])

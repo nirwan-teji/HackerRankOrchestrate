@@ -100,10 +100,11 @@ def parse_log_file(path, fid) -> list[Obs]:
             out.append(Obs(fid, t, rid_ or rid, state, idents=frozenset(ids | set(extra_ids)), attrs={**attrs, "event": ev}, kind="lookup"))
 
         if ev == "record_lookup":  # notification_delivery / search_index_diagnostic style
-            st = LOOKUP_STATE.get(ln.get("result", ""), "PRESENT")
-            sub = _clean(ln.get("subject_reference"))
-            out.append(Obs(fid, t, ln["resource_id"], st, system=ln.get("system", ""), cat=ln.get("record_type", ""),
-                           idents=frozenset({sub} - {""}), kind="lookup", attrs={"event": ev, "result": ln.get("result")}))
+            o = _lookup_record(fid, {**ln, "recorded_at": t, "subject_reference": ln.get("subject_reference", "")}, "recorded_at")
+            if o:
+                _fix_result_state(o, ln)
+                o.t, o.kind = t, "lookup"
+                out.append(o)
         elif ev == "profile_lookup_completed":
             gone = ln.get("http_status") == "404" or ln.get("rows") == "0"
             add("ABSENT" if gone else "PRESENT")
@@ -327,7 +328,16 @@ def parse_txt_file(path, fid, captured_at) -> list[Obs]:
 
 
 def pdf_text(path) -> str:
-    return subprocess.run(["pdftotext", "-layout", str(path), "-"], capture_output=True, text=True).stdout
+    """poppler's pdftotext when installed (best layout fidelity), else the pure-python pypdf fallback."""
+    try:
+        out = subprocess.run(["pdftotext", "-layout", str(path), "-"], capture_output=True, text=True, check=True).stdout
+        if out.strip():
+            return out
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    from pypdf import PdfReader
+
+    return "\n".join(p.extract_text() or "" for p in PdfReader(str(path)).pages)
 
 
 def parse_pdf_file(path, fid, captured_at) -> list[Obs]:

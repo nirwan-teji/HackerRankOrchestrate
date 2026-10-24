@@ -167,30 +167,55 @@ class Auditor:
             return ResourceState(rid, cat, system, "ABSENT", best[1])
         return ResourceState(rid, cat, system, "UNKNOWN", "")
 
-    # ------------------------------------------------------------------ audit
+    # ------------------------------------------------------------------ audit stages (wired as a LangGraph in pipeline.py)
+    def stage_links(self, cid: str) -> dict[str, tuple[str, str]]:
+        """rid -> (how it was linked, activity/evidence hint). Direct identifier matches win over activity links."""
+        sub = self.subj[cid]
+        links = {r: ("activity", a) for r, a in self.assigned.get(cid, {}).items()}
+        links.update({r: ("direct", ev) for r, ev in self.direct[cid].items()})
+        # a linked search document names the account it was indexed from (source_resource_id) -> that account is the subject's too
+        c = self.cases[cid]
+        for rid in list(links):
+            for o in self.obs_by_rid.get(rid, []):
+                src = o.attrs.get("source_resource_id")
+                if src and self.usable(o, P(c["audit_at"]), P(c["requested_at"])) and src not in links:
+                    links[src] = ("alias", o.file_id)
+        if not any(rid_prefix(r) == "account" for r in links):  # user_N -> account_00N for the earliest accounts
+            m = re.fullmatch(r"user_(\d+)", sub.user_id)
+            if m and int(m.group(1)) <= 10:
+                links[f"account_{int(m.group(1)):03d}"] = ("convention", "")
+        return links
+
+    def stage_states(self, cid: str, links: dict[str, tuple[str, str]]) -> list[ResourceState]:
+        case = self.cases[cid]
+        audit_at, reported_at, requested_at = P(case["audit_at"]), P(case["reported_at"]), P(case["requested_at"])
+        out = []
+        for rid, (via, hint) in sorted(links.items()):
+            st = self.state_of(rid, audit_at, reported_at, requested_at)
+            st.via = via
+            if not st.evidence and hint:
+                st.evidence = hint
+            out.append(st)
+        return out
+
+    @staticmethod
+    def stage_plan(resources: list[ResourceState]) -> tuple[list[Step], str, list[ResourceState]]:
+        _, status = build_steps(resources)
+        if status == "COMPLETE":  # a deletion can only be declared complete from evidence: drop convention-only accounts nobody observed
+            resources = [r for r in resources if not (r.state == "UNKNOWN" and not r.evidence)]
+        steps, status = build_steps(resources)
+        return steps, status, resources
+
     def audit(self, cid: str) -> CaseResult:
-        case, sub = self.cases[cid], self.subj[cid]
-        res = CaseResult(cid, "INCOMPLETE", subject=sub)
+        """Straight-line equivalent of the LangGraph pipeline (kept for tests and scripts)."""
+        res = CaseResult(cid, "INCOMPLETE", subject=self.subj[cid])
         if self.intent[cid] != "DELETE":
             res.status = "NOT_APPLICABLE"
             res.notes.append("request does not authorise deletion")
             return res
-        if sub is None:
+        if res.subject is None:
             res.notes.append("identity unresolved")
             return res
-        audit_at, reported_at = P(case["audit_at"]), P(case["reported_at"])
-        links = {**self.assigned.get(cid, {}), **self.direct[cid]}
-        via = {r: ("activity" if r in self.assigned.get(cid, {}) and r not in self.direct[cid] else "direct") for r in links}
-        if not any(rid_prefix(r) == "account" for r in links):  # family-A convention: user_N -> account_00N
-            m = re.fullmatch(r"user_(\d+)", sub.user_id)
-            if m and int(m.group(1)) <= 10:
-                rid = f"account_{int(m.group(1)):03d}"
-                links[rid], via[rid] = "", "convention"
-        for rid, ev in sorted(links.items()):
-            st = self.state_of(rid, audit_at, reported_at, P(case["requested_at"]))
-            st.via = via[rid]
-            if not st.evidence and ev:
-                st.evidence = ev
-            res.resources.append(st)
-        res.steps, res.status = build_steps(res.resources)
+        res.resources = self.stage_states(cid, self.stage_links(cid))
+        res.steps, res.status, res.resources = self.stage_plan(res.resources)
         return res

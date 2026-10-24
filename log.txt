@@ -70,3 +70,24 @@ branch=claude/hackerrank-orchestrate-setup-mg8reg
 repo_root=/home/user/HackerRankOrchestrate
 worktree=main
 parent_agent=none
+
+## [2026-10-24T16:10:00Z] Engine v3 + deliverables (pipeline, validation, evaluation, reports, packaging)
+
+User Prompt (verbatim, secrets redacted):
+(no new user message; continuing the same task - build the full solution for "Ghost Data Still Exists" after the user pasted the problem statement and asked what else was needed)
+
+Agent Response Summary:
+Replaced guessy linking with evidence-grounded rules (activity windows by resource kind, reported-status/result consistency, elimination, connected-component pairing), added intent classification (rules + optional LangChain LLM), a LangGraph pipeline, an output-contract validator, local OCR with cached boxes for screenshots, PDF fallback via pypdf, five synthetic evaluation scenarios, and generated evaluation_report.md / usage_report.md from real runs. Found and fixed an off-by-one in the syslog parser that cross-linked lookups in the hidden set, and an ACTIVE-state mapping bug that hid active flows/restore risks. Public-sample result: status accuracy 100%, step F1 0.99 (2 expected audit_record ids are not in any visible file; 1 account tie is ambiguous).
+
+Actions:
+* code/ghost/{linking,pipeline,intent,validate,documents,vision}.py, code/main.py, code/evaluation/{custom_cases,run_eval}.py, code/tests/test_ghost.py
+* ran python3 code/main.py (518 rows, 0 contract violations), python3 code/evaluation/run_eval.py, pytest (17 passed)
+* wrote output.csv, README files, requirements, .env.example additions; updated scripts/package_submission.py
+
+Context:
+tool=Claude Code
+model=claude-sonnet-5-5
+branch=claude/hackerrank-orchestrate-setup-mg8reg
+repo_root=/home/user/HackerRankOrchestrate
+worktree=main
+parent_agent=none

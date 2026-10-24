@@ -1,0 +1,427 @@
+[
+{
+"x": 243,
+"y": 22,
+"t": "CustomerReference"
+},
+{
+"x": 487,
+"y": 30,
+"t": "Search references, orders, support cases or finance records..."
+},
+{
+"x": 55,
+"y": 35,
+"t": "Northstar Shop"
+},
+{
+"x": 1634,
+"y": 28,
+"t": "Production Help"
+},
+{
+"x": 240,
+"y": 40,
+"t": "Registry"
+},
+{
+"x": 1754,
+"y": 29,
+"t": "CR"
+},
+{
+"x": 244,
+"y": 88,
+"t": "Northstar Shop / Customer Reference Registry / Customer references"
+},
+{
+"x": 51,
+"y": 108,
+"t": "Home"
+},
+{
+"x": 243,
+"y": 116,
+"t": "user_17"
+},
+{
+"x": 523,
+"y": 112,
+"t": "Retained reference"
+},
+{
+"x": 1592,
+"y": 116,
+"t": "Filter"
+},
+{
+"x": 1652,
+"y": 116,
+"t": "Export"
+},
+{
+"x": 1720,
+"y": 117,
+"t": "Actions"
+},
+{
+"x": 245,
+"y": 144,
+"t": "Customerkey - Account Platform - eu-west"
+},
+{
+"x": 52,
+"y": 153,
+"t": "Customer references"
+},
+{
+"x": 246,
+"y": 184,
+"t": "Overview"
+},
+{
+"x": 330,
+"y": 184,
+"t": "Linked records"
+},
+{
+"x": 440,
+"y": 184,
+"t": "History"
+},
+{
+"x": 51,
+"y": 198,
+"t": "Orders"
+},
+{
+"x": 50,
+"y": 242,
+"t": "Support"
+},
+{
+"x": 255,
+"y": 239,
+"t": "Reference type"
+},
+{
+"x": 642,
+"y": 240,
+"t": "Created"
+},
+{
+"x": 1026,
+"y": 240,
+"t": "Most recent update"
+},
+{
+"x": 1413,
+"y": 240,
+"t": "Owner team"
+},
+{
+"x": 256,
+"y": 262,
+"t": "Customerkey"
+},
+{
+"x": 643,
+"y": 262,
+"t": "11Jan202408:42UTC"
+},
+{
+"x": 1029,
+"y": 262,
+"t": "10Mar202607:18UTC"
+},
+{
+"x": 1411,
+"y": 262,
+"t": "Account Platform"
+},
+{
+"x": 50,
+"y": 288,
+"t": "Finance"
+},
+{
+"x": 51,
+"y": 333,
+"t": "Datamanagement"
+},
+{
+"x": 260,
+"y": 340,
+"t": "Overview"
+},
+{
+"x": 1218,
+"y": 340,
+"t": "Updated moments ago \u2022 4 records"
+},
+{
+"x": 1437,
+"y": 339,
+"t": "History"
+},
+{
+"x": 51,
+"y": 378,
+"t": "Reports"
+},
+{
+"x": 256,
+"y": 380,
+"t": "System"
+},
+{
+"x": 453,
+"y": 379,
+"t": "Record reference"
+},
+{
+"x": 715,
+"y": 380,
+"t": "Relationship"
+},
+{
+"x": 991,
+"y": 380,
+"t": "Created (UTC)"
+},
+{
+"x": 1265,
+"y": 380,
+"t": "Status"
+},
+{
+"x": 1438,
+"y": 386,
+"t": "10Mar2026"
+},
+{
+"x": 1555,
+"y": 386,
+"t": "Metadata reviewed"
+},
+{
+"x": 279,
+"y": 416,
+"t": "Orders"
+},
+{
+"x": 715,
+"y": 414,
+"t": "Linked to customer"
+},
+{
+"x": 991,
+"y": 414,
+"t": "11 Jan 2024 08:45"
+},
+{
+"x": 455,
+"y": 414,
+"t": "ORD-20263245"
+},
+{
+"x": 1265,
+"y": 414,
+"t": "Active"
+},
+{
+"x": 1438,
+"y": 418,
+"t": "22 Aug 2024"
+},
+{
+"x": 1555,
+"y": 419,
+"t": "Finance link added"
+},
+{
+"x": 1438,
+"y": 450,
+"t": "03Jun2024"
+},
+{
+"x": 1263,
+"y": 455,
+"t": "Active"
+},
+{
+"x": 714,
+"y": 455,
+"t": "Linked to customer"
+},
+{
+"x": 454,
+"y": 456,
+"t": "CS-3245"
+},
+{
+"x": 991,
+"y": 455,
+"t": "14 Feb 2024 12:16"
+},
+{
+"x": 278,
+"y": 457,
+"t": "Support"
+},
+{
+"x": 259,
+"y": 457,
+"t": "2]"
+},
+{
+"x": 1554,
+"y": 451,
+"t": "Support link added"
+},
+{
+"x": 1439,
+"y": 483,
+"t": "14 Feb 2024"
+},
+{
+"x": 1554,
+"y": 484,
+"t": "Support link added"
+},
+{
+"x": 454,
+"y": 496,
+"t": "CS-3378"
+},
+{
+"x": 714,
+"y": 496,
+"t": "Linked to customer"
+},
+{
+"x": 991,
+"y": 496,
+"t": "03 Jun 2024 09:27"
+},
+{
+"x": 279,
+"y": 498,
+"t": "Support"
+},
+{
+"x": 259,
+"y": 498,
+"t": "3]"
+},
+{
+"x": 1265,
+"y": 496,
+"t": "Active"
+},
+{
+"x": 1438,
+"y": 516,
+"t": "11 Jan 2024"
+},
+{
+"x": 1555,
+"y": 517,
+"t": "Reference created"
+},
+{
+"x": 453,
+"y": 537,
+"t": "FIN-7742"
+},
+{
+"x": 715,
+"y": 538,
+"t": "Linked to customer"
+},
+{
+"x": 991,
+"y": 538,
+"t": "22 Aug 2024 15:03"
+},
+{
+"x": 278,
+"y": 538,
+"t": "Finance"
+},
+{
+"x": 1265,
+"y": 538,
+"t": "Active"
+},
+{
+"x": 1439,
+"y": 565,
+"t": "Activity"
+},
+{
+"x": 1461,
+"y": 586,
+"t": "Reference created"
+},
+{
+"x": 1460,
+"y": 601,
+"t": "Recorded"
+},
+{
+"x": 1462,
+"y": 632,
+"t": "Order link added"
+},
+{
+"x": 1462,
+"y": 647,
+"t": "ORD-20263245"
+},
+{
+"x": 1460,
+"y": 676,
+"t": "Support links added"
+},
+{
+"x": 1462,
+"y": 692,
+"t": "CS-3245, CS-3378"
+},
+{
+"x": 1461,
+"y": 722,
+"t": "Finance link added"
+},
+{
+"x": 1461,
+"y": 736,
+"t": "FIN-7742"
+},
+{
+"x": 1461,
+"y": 766,
+"t": "Metadata reviewed"
+},
+{
+"x": 1461,
+"y": 782,
+"t": "Recorded"
+},
+{
+"x": 20,
+"y": 1028,
+"t": "Customer Reference Registry"
+},
+{
+"x": 20,
+"y": 1044,
+"t": "Production workspace"
+},
+{
+"x": 21,
+"y": 1062,
+"t": "build 2026.10.4"
+}
+]

@@ -1,0 +1,407 @@
+[
+{
+"x": 487,
+"y": 29,
+"t": "Search exports..."
+},
+{
+"x": 244,
+"y": 29,
+"t": "CustomerDownloadCenter"
+},
+{
+"x": 55,
+"y": 35,
+"t": "Northstar Shop"
+},
+{
+"x": 1634,
+"y": 28,
+"t": "Production Help"
+},
+{
+"x": 1754,
+"y": 29,
+"t": "CD"
+},
+{
+"x": 243,
+"y": 88,
+"t": "Northstar Shop/Customer Download Center/ Data exports"
+},
+{
+"x": 51,
+"y": 108,
+"t": "Home"
+},
+{
+"x": 244,
+"y": 116,
+"t": "Data exports"
+},
+{
+"x": 566,
+"y": 112,
+"t": "4jobs"
+},
+{
+"x": 1592,
+"y": 116,
+"t": "Filter"
+},
+{
+"x": 1652,
+"y": 116,
+"t": "Export"
+},
+{
+"x": 1722,
+"y": 116,
+"t": "Actions"
+},
+{
+"x": 50,
+"y": 152,
+"t": "Orders"
+},
+{
+"x": 245,
+"y": 144,
+"t": "Create and manage customer download packages"
+},
+{
+"x": 400,
+"y": 184,
+"t": "Processing"
+},
+{
+"x": 247,
+"y": 184,
+"t": "All exports"
+},
+{
+"x": 338,
+"y": 185,
+"t": "Ready"
+},
+{
+"x": 490,
+"y": 184,
+"t": "Expired"
+},
+{
+"x": 51,
+"y": 198,
+"t": "Customers"
+},
+{
+"x": 1025,
+"y": 239,
+"t": "Created today"
+},
+{
+"x": 640,
+"y": 240,
+"t": "Processing"
+},
+{
+"x": 256,
+"y": 240,
+"t": "Ready"
+},
+{
+"x": 50,
+"y": 242,
+"t": "Data exports"
+},
+{
+"x": 1410,
+"y": 239,
+"t": "Downloads today"
+},
+{
+"x": 52,
+"y": 286,
+"t": "Products"
+},
+{
+"x": 50,
+"y": 332,
+"t": "Marketing"
+},
+{
+"x": 260,
+"y": 340,
+"t": "All exports"
+},
+{
+"x": 1217,
+"y": 338,
+"t": "Updated moments ago : 4 records"
+},
+{
+"x": 1438,
+"y": 340,
+"t": "export_1260"
+},
+{
+"x": 50,
+"y": 377,
+"t": "Analytics"
+},
+{
+"x": 256,
+"y": 379,
+"t": "Export ID"
+},
+{
+"x": 460,
+"y": 380,
+"t": "Filename"
+},
+{
+"x": 756,
+"y": 380,
+"t": "Owner"
+},
+{
+"x": 1064,
+"y": 380,
+"t": "Status"
+},
+{
+"x": 1204,
+"y": 380,
+"t": "Created"
+},
+{
+"x": 1438,
+"y": 386,
+"t": "Owner"
+},
+{
+"x": 1555,
+"y": 386,
+"t": "ingrid.dahl@outlook.com"
+},
+{
+"x": 278,
+"y": 416,
+"t": "export_1261"
+},
+{
+"x": 460,
+"y": 414,
+"t": "customer_export_1261.zip"
+},
+{
+"x": 755,
+"y": 414,
+"t": "marcus.lee@northstar.shop"
+},
+{
+"x": 1063,
+"y": 414,
+"t": "Collecting"
+},
+{
+"x": 1204,
+"y": 414,
+"t": "20 Jun 14:18 UTC"
+},
+{
+"x": 1438,
+"y": 418,
+"t": "Created"
+},
+{
+"x": 50,
+"y": 422,
+"t": "Settings"
+},
+{
+"x": 1555,
+"y": 419,
+"t": "18 Jun 2026 06:42UTC"
+},
+{
+"x": 1438,
+"y": 450,
+"t": "Expires"
+},
+{
+"x": 1062,
+"y": 456,
+"t": "Ready"
+},
+{
+"x": 277,
+"y": 456,
+"t": "export_1260"
+},
+{
+"x": 461,
+"y": 456,
+"t": "customer_export_1260.zip"
+},
+{
+"x": 757,
+"y": 456,
+"t": "ingrid.dahl@outlook.com"
+},
+{
+"x": 1204,
+"y": 456,
+"t": "18 Jun06:42UTC"
+},
+{
+"x": 1555,
+"y": 452,
+"t": "25Jun202606:42UTC"
+},
+{
+"x": 1438,
+"y": 484,
+"t": "Size"
+},
+{
+"x": 1554,
+"y": 484,
+"t": "18.4 MB"
+},
+{
+"x": 1063,
+"y": 496,
+"t": "Packaging"
+},
+{
+"x": 461,
+"y": 497,
+"t": "customer_export_1259.zip"
+},
+{
+"x": 757,
+"y": 497,
+"t": "sara.kim@northstar.shop"
+},
+{
+"x": 277,
+"y": 498,
+"t": "export_1259"
+},
+{
+"x": 1205,
+"y": 496,
+"t": "17 Jun 11:03 UTC"
+},
+{
+"x": 1438,
+"y": 516,
+"t": "Checksum"
+},
+{
+"x": 1555,
+"y": 517,
+"t": "SHA-256 -41ca09..."
+},
+{
+"x": 277,
+"y": 538,
+"t": "export_1258"
+},
+{
+"x": 756,
+"y": 537,
+"t": "daniel.park@northstar.shop"
+},
+{
+"x": 1064,
+"y": 538,
+"t": "Ready"
+},
+{
+"x": 461,
+"y": 538,
+"t": "customer_export_1258.zip"
+},
+{
+"x": 1204,
+"y": 538,
+"t": "16 Jun 09:27UTC"
+},
+{
+"x": 1439,
+"y": 549,
+"t": "Download count"
+},
+{
+"x": 1437,
+"y": 580,
+"t": "Included"
+},
+{
+"x": 1554,
+"y": 581,
+"t": "Profile \u00b7 Orders \u00b7 Saved addresses"
+},
+{
+"x": 1439,
+"y": 630,
+"t": "Activity"
+},
+{
+"x": 1461,
+"y": 652,
+"t": "06:46"
+},
+{
+"x": 1460,
+"y": 666,
+"t": "Ready for download"
+},
+{
+"x": 1461,
+"y": 697,
+"t": "06:45"
+},
+{
+"x": 1460,
+"y": 712,
+"t": "Package created"
+},
+{
+"x": 1462,
+"y": 742,
+"t": "06:43"
+},
+{
+"x": 1461,
+"y": 757,
+"t": "Collecting customer records"
+},
+{
+"x": 1461,
+"y": 786,
+"t": "06:42"
+},
+{
+"x": 1462,
+"y": 802,
+"t": "Export requested"
+},
+{
+"x": 21,
+"y": 1028,
+"t": "Customer Download Center"
+},
+{
+"x": 20,
+"y": 1044,
+"t": "Production workspace"
+},
+{
+"x": 21,
+"y": 1062,
+"t": "build 2026.10.4"
+}
+]

@@ -1,0 +1,477 @@
+[
+{
+"x": 242,
+"y": 30,
+"t": "Vault Recovery Manager"
+},
+{
+"x": 487,
+"y": 29,
+"t": "Search archives, accounts or restore requests..."
+},
+{
+"x": 55,
+"y": 35,
+"t": "Northstar Shop"
+},
+{
+"x": 1634,
+"y": 30,
+"t": "Production Help"
+},
+{
+"x": 1754,
+"y": 30,
+"t": "VR"
+},
+{
+"x": 244,
+"y": 88,
+"t": "Northstar Shop/ Vault Recovery Manager/ Recovery Manager"
+},
+{
+"x": 51,
+"y": 108,
+"t": "Overview"
+},
+{
+"x": 246,
+"y": 116,
+"t": "Customer-platform archives"
+},
+{
+"x": 581,
+"y": 112,
+"t": "Healthy"
+},
+{
+"x": 1592,
+"y": 116,
+"t": "Filter"
+},
+{
+"x": 1651,
+"y": 116,
+"t": "Export"
+},
+{
+"x": 1722,
+"y": 116,
+"t": "Actions"
+},
+{
+"x": 52,
+"y": 152,
+"t": "Recovery Manager"
+},
+{
+"x": 244,
+"y": 144,
+"t": "Northstar Production -weekly snapshots"
+},
+{
+"x": 247,
+"y": 184,
+"t": "Archives"
+},
+{
+"x": 324,
+"y": 184,
+"t": "Recent restores"
+},
+{
+"x": 443,
+"y": 184,
+"t": "Infrastructure health"
+},
+{
+"x": 50,
+"y": 198,
+"t": "Customerplatforms"
+},
+{
+"x": 641,
+"y": 240,
+"t": "Storage growth"
+},
+{
+"x": 1027,
+"y": 240,
+"t": "Restore success"
+},
+{
+"x": 258,
+"y": 240,
+"t": "Service health"
+},
+{
+"x": 51,
+"y": 242,
+"t": "Restore requests"
+},
+{
+"x": 1411,
+"y": 240,
+"t": "Stored"
+},
+{
+"x": 254,
+"y": 261,
+"t": "Healthy"
+},
+{
+"x": 641,
+"y": 262,
+"t": "+12.4%"
+},
+{
+"x": 1028,
+"y": 262,
+"t": "99.6%"
+},
+{
+"x": 1411,
+"y": 262,
+"t": "1.35PB"
+},
+{
+"x": 51,
+"y": 287,
+"t": "Infrastructure"
+},
+{
+"x": 51,
+"y": 332,
+"t": "Reports"
+},
+{
+"x": 258,
+"y": 339,
+"t": "Archives"
+},
+{
+"x": 1219,
+"y": 338,
+"t": "Updated moments ago 4 records"
+},
+{
+"x": 1438,
+"y": 339,
+"t": "backup_9287"
+},
+{
+"x": 255,
+"y": 379,
+"t": "Archive ID"
+},
+{
+"x": 1183,
+"y": 380,
+"t": "Encryption"
+},
+{
+"x": 452,
+"y": 379,
+"t": "Account"
+},
+{
+"x": 748,
+"y": 379,
+"t": "Region"
+},
+{
+"x": 919,
+"y": 379,
+"t": "Created"
+},
+{
+"x": 1069,
+"y": 379,
+"t": "Size"
+},
+{
+"x": 1318,
+"y": 378,
+"t": "Tier"
+},
+{
+"x": 1438,
+"y": 386,
+"t": "Account"
+},
+{
+"x": 1555,
+"y": 386,
+"t": "areed1433@gmail.com"
+},
+{
+"x": 919,
+"y": 414,
+"t": "26 Apr 02:00"
+},
+{
+"x": 1071,
+"y": 414,
+"t": "102.3 GB"
+},
+{
+"x": 1184,
+"y": 414,
+"t": "AES-256"
+},
+{
+"x": 257,
+"y": 415,
+"t": "backup_9291"
+},
+{
+"x": 452,
+"y": 414,
+"t": "bluepeakco@outlook.com"
+},
+{
+"x": 749,
+"y": 414,
+"t": "ap-southeast-1"
+},
+{
+"x": 1319,
+"y": 414,
+"t": "Archive"
+},
+{
+"x": 1437,
+"y": 418,
+"t": "Path"
+},
+{
+"x": 1555,
+"y": 420,
+"t": "s3://northstar-backups/customer-"
+},
+{
+"x": 1555,
+"y": 434,
+"t": "platform/weekly/segment-42-"
+},
+{
+"x": 451,
+"y": 455,
+"t": "miller.logistics@company.com"
+},
+{
+"x": 1070,
+"y": 455,
+"t": "67.1 GB"
+},
+{
+"x": 1184,
+"y": 455,
+"t": "AES-256"
+},
+{
+"x": 257,
+"y": 457,
+"t": "2 backup_9288"
+},
+{
+"x": 749,
+"y": 456,
+"t": "us-west-2"
+},
+{
+"x": 919,
+"y": 456,
+"t": "26 Apr 02:00"
+},
+{
+"x": 1319,
+"y": 456,
+"t": "Archive"
+},
+{
+"x": 1554,
+"y": 450,
+"t": "20260426.tar.zst"
+},
+{
+"x": 1438,
+"y": 482,
+"t": "Region"
+},
+{
+"x": 1554,
+"y": 482,
+"t": "eu-west-1"
+},
+{
+"x": 276,
+"y": 497,
+"t": "backup_9287"
+},
+{
+"x": 749,
+"y": 496,
+"t": "eu-west-1"
+},
+{
+"x": 919,
+"y": 496,
+"t": "26 Apr 02:00"
+},
+{
+"x": 1070,
+"y": 496,
+"t": "84.7 GB"
+},
+{
+"x": 1183,
+"y": 496,
+"t": "AES-256"
+},
+{
+"x": 452,
+"y": 497,
+"t": "areed1433@gmail.com"
+},
+{
+"x": 1319,
+"y": 496,
+"t": "Archive"
+},
+{
+"x": 1438,
+"y": 514,
+"t": "Created"
+},
+{
+"x": 1555,
+"y": 516,
+"t": "26 Apr2026 02:00 UTC"
+},
+{
+"x": 256,
+"y": 538,
+"t": "4backup_9286"
+},
+{
+"x": 748,
+"y": 538,
+"t": "us-east-1"
+},
+{
+"x": 919,
+"y": 538,
+"t": "26 Apr 02:00"
+},
+{
+"x": 1070,
+"y": 537,
+"t": "91.4 GB"
+},
+{
+"x": 1184,
+"y": 538,
+"t": "AES-256"
+},
+{
+"x": 452,
+"y": 538,
+"t": "summit-retail@company.com"
+},
+{
+"x": 1318,
+"y": 538,
+"t": "Archive"
+},
+{
+"x": 1438,
+"y": 546,
+"t": "Encryption"
+},
+{
+"x": 1555,
+"y": 548,
+"t": "AES-256"
+},
+{
+"x": 1438,
+"y": 580,
+"t": "Checksum"
+},
+{
+"x": 1554,
+"y": 580,
+"t": "Verified"
+},
+{
+"x": 1438,
+"y": 612,
+"t": "Last drill"
+},
+{
+"x": 1554,
+"y": 612,
+"t": "29 Mar 2026"
+},
+{
+"x": 1438,
+"y": 644,
+"t": "Retention end"
+},
+{
+"x": 1555,
+"y": 646,
+"t": "26 Jul 2026"
+},
+{
+"x": 1439,
+"y": 693,
+"t": "Activity"
+},
+{
+"x": 1462,
+"y": 715,
+"t": "25 Apr"
+},
+{
+"x": 1460,
+"y": 730,
+"t": "backup_9286 restored -Completed"
+},
+{
+"x": 1461,
+"y": 760,
+"t": "24 Apr"
+},
+{
+"x": 1460,
+"y": 775,
+"t": "backup_9281 restored-Completed"
+},
+{
+"x": 1461,
+"y": 806,
+"t": "22 Apr"
+},
+{
+"x": 1460,
+"y": 820,
+"t": "checksum verification \u00b7 Completed"
+},
+{
+"x": 21,
+"y": 1077,
+"t": "Vault Recovery Manager"
+},
+{
+"x": 19,
+"y": 1094,
+"t": "Production workspace"
+},
+{
+"x": 20,
+"y": 1111,
+"t": "build 2026.10.4"
+}
+]

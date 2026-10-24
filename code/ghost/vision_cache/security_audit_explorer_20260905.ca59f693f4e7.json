@@ -1,0 +1,512 @@
+[
+{
+"x": 242,
+"y": 30,
+"t": "Sentinel"
+},
+{
+"x": 487,
+"y": 30,
+"t": "Search events, users, IP addresses or references.."
+},
+{
+"x": 1635,
+"y": 29,
+"t": "Production"
+},
+{
+"x": 54,
+"y": 35,
+"t": "Northstar Shop"
+},
+{
+"x": 1708,
+"y": 29,
+"t": "Help"
+},
+{
+"x": 246,
+"y": 88,
+"t": "Northstar Shop / Sentinel / Account events"
+},
+{
+"x": 52,
+"y": 107,
+"t": "Overview"
+},
+{
+"x": 244,
+"y": 116,
+"t": "Account events"
+},
+{
+"x": 539,
+"y": 112,
+"t": "6 signed events"
+},
+{
+"x": 1591,
+"y": 116,
+"t": "Fiter"
+},
+{
+"x": 1722,
+"y": 116,
+"t": "Actions"
+},
+{
+"x": 51,
+"y": 152,
+"t": "Threats"
+},
+{
+"x": 245,
+"y": 144,
+"t": "Subject filter: user_03-18-26 Aug 2026 UTC"
+},
+{
+"x": 247,
+"y": 184,
+"t": "Events (6)"
+},
+{
+"x": 335,
+"y": 184,
+"t": "Timeline"
+},
+{
+"x": 411,
+"y": 186,
+"t": "Integrity"
+},
+{
+"x": 53,
+"y": 196,
+"t": "Account events"
+},
+{
+"x": 50,
+"y": 242,
+"t": "Audit logs"
+},
+{
+"x": 257,
+"y": 240,
+"t": "Events"
+},
+{
+"x": 641,
+"y": 240,
+"t": "Categories"
+},
+{
+"x": 1028,
+"y": 240,
+"t": "Integrity failures"
+},
+{
+"x": 1412,
+"y": 240,
+"t": "Partition"
+},
+{
+"x": 1412,
+"y": 262,
+"t": "2026-Q3"
+},
+{
+"x": 50,
+"y": 286,
+"t": "Detections"
+},
+{
+"x": 52,
+"y": 333,
+"t": "Investigations"
+},
+{
+"x": 258,
+"y": 340,
+"t": "Events (6)"
+},
+{
+"x": 1218,
+"y": 338,
+"t": "Updated moments ago \u2022 6 records"
+},
+{
+"x": 1439,
+"y": 340,
+"t": "audit_record_oo3-Rawevent"
+},
+{
+"x": 51,
+"y": 378,
+"t": "Reports"
+},
+{
+"x": 686,
+"y": 380,
+"t": "Category"
+},
+{
+"x": 1155,
+"y": 379,
+"t": "Integrity"
+},
+{
+"x": 257,
+"y": 380,
+"t": "Time (UTC)"
+},
+{
+"x": 424,
+"y": 380,
+"t": "Event"
+},
+{
+"x": 879,
+"y": 380,
+"t": "Subject"
+},
+{
+"x": 971,
+"y": 380,
+"t": "Actor"
+},
+{
+"x": 1252,
+"y": 380,
+"t": "Reference"
+},
+{
+"x": 1437,
+"y": 386,
+"t": "event_type"
+},
+{
+"x": 1554,
+"y": 386,
+"t": "account_closure_recorded"
+},
+{
+"x": 425,
+"y": 414,
+"t": "Account closure recorded"
+},
+{
+"x": 971,
+"y": 414,
+"t": "Automated workflow"
+},
+{
+"x": 1157,
+"y": 414,
+"t": "Valid"
+},
+{
+"x": 688,
+"y": 414,
+"t": "Account lifecycle"
+},
+{
+"x": 258,
+"y": 415,
+"t": "D25Aug04:03"
+},
+{
+"x": 1255,
+"y": 414,
+"t": "audit_record_003"
+},
+{
+"x": 1438,
+"y": 419,
+"t": "subject"
+},
+{
+"x": 1555,
+"y": 420,
+"t": "user_03"
+},
+{
+"x": 1438,
+"y": 452,
+"t": "actor"
+},
+{
+"x": 687,
+"y": 455,
+"t": "Session management"
+},
+{
+"x": 970,
+"y": 456,
+"t": "Security system"
+},
+{
+"x": 1156,
+"y": 455,
+"t": "Valid"
+},
+{
+"x": 879,
+"y": 456,
+"t": "user_03"
+},
+{
+"x": 1255,
+"y": 456,
+"t": "audit_record_002"
+},
+{
+"x": 279,
+"y": 456,
+"t": "25 Aug 03:21"
+},
+{
+"x": 424,
+"y": 456,
+"t": "Session revoked"
+},
+{
+"x": 1555,
+"y": 452,
+"t": "automatedaccountworkflow"
+},
+{
+"x": 1440,
+"y": 484,
+"t": "recorded_at"
+},
+{
+"x": 1556,
+"y": 484,
+"t": "2026-08-25T04:03:00Z"
+},
+{
+"x": 687,
+"y": 496,
+"t": "Authentication"
+},
+{
+"x": 426,
+"y": 497,
+"t": "Recovery challenge completed"
+},
+{
+"x": 970,
+"y": 497,
+"t": "User (self)"
+},
+{
+"x": 1156,
+"y": 496,
+"t": "Valid"
+},
+{
+"x": 278,
+"y": 498,
+"t": "24 Aug 16:14"
+},
+{
+"x": 1255,
+"y": 497,
+"t": "audit_record_001"
+},
+{
+"x": 1440,
+"y": 516,
+"t": "fingerprint"
+},
+{
+"x": 1556,
+"y": 517,
+"t": "8fOc...31ad"
+},
+{
+"x": 425,
+"y": 537,
+"t": "Email change confirmed"
+},
+{
+"x": 879,
+"y": 538,
+"t": "user_03"
+},
+{
+"x": 970,
+"y": 537,
+"t": "User (self)"
+},
+{
+"x": 279,
+"y": 538,
+"t": "22 Aug 11:27"
+},
+{
+"x": 1157,
+"y": 538,
+"t": "Valid"
+},
+{
+"x": 688,
+"y": 538,
+"t": "Profile update"
+},
+{
+"x": 1255,
+"y": 538,
+"t": "audit_record_006"
+},
+{
+"x": 1439,
+"y": 549,
+"t": "signature"
+},
+{
+"x": 1556,
+"y": 550,
+"t": "Valid"
+},
+{
+"x": 686,
+"y": 578,
+"t": "Authentication"
+},
+{
+"x": 879,
+"y": 578,
+"t": "user_03"
+},
+{
+"x": 971,
+"y": 578,
+"t": "User (self)"
+},
+{
+"x": 1156,
+"y": 578,
+"t": "Valid"
+},
+{
+"x": 258,
+"y": 579,
+"t": "520Aug09:42"
+},
+{
+"x": 425,
+"y": 579,
+"t": "Login from new device"
+},
+{
+"x": 1255,
+"y": 578,
+"t": "audit_record_005"
+},
+{
+"x": 1437,
+"y": 580,
+"t": "journal"
+},
+{
+"x": 1555,
+"y": 582,
+"t": "2026-Q3"
+},
+{
+"x": 877,
+"y": 620,
+"t": "user_03"
+},
+{
+"x": 971,
+"y": 620,
+"t": "User (self)"
+},
+{
+"x": 280,
+"y": 620,
+"t": "18 Aug 14:05"
+},
+{
+"x": 425,
+"y": 620,
+"t": "Password changed"
+},
+{
+"x": 1157,
+"y": 620,
+"t": "Valid"
+},
+{
+"x": 688,
+"y": 620,
+"t": "Authentication"
+},
+{
+"x": 1254,
+"y": 620,
+"t": "audit_record_004"
+},
+{
+"x": 1440,
+"y": 630,
+"t": "Activity"
+},
+{
+"x": 1462,
+"y": 652,
+"t": "25 Aug"
+},
+{
+"x": 1462,
+"y": 667,
+"t": "Account closure recorded"
+},
+{
+"x": 1461,
+"y": 696,
+"t": "25 Aug"
+},
+{
+"x": 1462,
+"y": 712,
+"t": "Session revoked"
+},
+{
+"x": 1461,
+"y": 742,
+"t": "24 Aug"
+},
+{
+"x": 1461,
+"y": 757,
+"t": "Recovery challenge completed"
+},
+{
+"x": 1461,
+"y": 786,
+"t": "22 Aug"
+},
+{
+"x": 1462,
+"y": 802,
+"t": "Email change confirmed"
+},
+{
+"x": 20,
+"y": 1028,
+"t": "Sentinel"
+},
+{
+"x": 19,
+"y": 1044,
+"t": "Production workspace"
+},
+{
+"x": 21,
+"y": 1060,
+"t": "build 2026.10.4"
+}
+]

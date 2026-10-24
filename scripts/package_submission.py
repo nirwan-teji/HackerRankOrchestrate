@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_DIRS = {".venv", "venv", "node_modules", "__pycache__", ".cache", "data", "dataset", "support_tickets", ".pytest_cache"}
-SKIP_SUFFIX = {".pyc", ".csv"}
+SKIP_SUFFIX = {".pyc", ".csv"}  # note: evaluation/*.md and ghost/vision_cache/*.json ARE shipped
 out = ROOT / "submission"
 out.mkdir(exist_ok=True)
 
@@ -17,9 +17,9 @@ with zipfile.ZipFile(out / "code.zip", "w", zipfile.ZIP_DEFLATED) as z:
 
 if len(sys.argv) > 1:
     shutil.copy(sys.argv[1], out / "output.csv")
-log = Path.home() / "hackerrank_orchestrate" / "log.txt"
+log = ROOT / "log.txt"  # AGENTS.md: the transcript lives next to AGENTS.md at the repo root
 if log.exists():
     shutil.copy(log, out / "log.txt")
 else:
-    print(f"WARNING: transcript not found at {log} (check AGENTS.md for this edition's path)")
+    print(f"WARNING: transcript not found at {log} (AGENTS.md writes it at the repo root)")
 print("built", out, [f.name for f in out.iterdir()])

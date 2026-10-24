@@ -1,0 +1,442 @@
+[
+{
+"x": 242,
+"y": 30,
+"t": "BridgeOps"
+},
+{
+"x": 487,
+"y": 30,
+"t": "Search connectors..."
+},
+{
+"x": 55,
+"y": 35,
+"t": "Northstar Shop"
+},
+{
+"x": 1634,
+"y": 30,
+"t": "Production Help"
+},
+{
+"x": 244,
+"y": 88,
+"t": "Northstar Shop/BridgeOps / Connections"
+},
+{
+"x": 52,
+"y": 108,
+"t": "Connections"
+},
+{
+"x": 245,
+"y": 116,
+"t": "Connections"
+},
+{
+"x": 571,
+"y": 113,
+"t": "12 connectors"
+},
+{
+"x": 1592,
+"y": 116,
+"t": "Filter"
+},
+{
+"x": 1651,
+"y": 116,
+"t": "Export"
+},
+{
+"x": 1722,
+"y": 116,
+"t": "Actions"
+},
+{
+"x": 49,
+"y": 152,
+"t": "Topology"
+},
+{
+"x": 244,
+"y": 143,
+"t": "PRODUCTION -eu-west -07Aug 2026 08:00 UTC"
+},
+{
+"x": 245,
+"y": 184,
+"t": "Topology"
+},
+{
+"x": 328,
+"y": 184,
+"t": "Throughput"
+},
+{
+"x": 50,
+"y": 197,
+"t": "Monitoring"
+},
+{
+"x": 424,
+"y": 184,
+"t": "Recent deliveries"
+},
+{
+"x": 50,
+"y": 242,
+"t": "Events"
+},
+{
+"x": 256,
+"y": 240,
+"t": "Healthy"
+},
+{
+"x": 565,
+"y": 240,
+"t": "Events / hour"
+},
+{
+"x": 873,
+"y": 240,
+"t": "Delivery p95"
+},
+{
+"x": 1180,
+"y": 240,
+"t": "Backlog"
+},
+{
+"x": 1490,
+"y": 240,
+"t": "Destination health"
+},
+{
+"x": 256,
+"y": 262,
+"t": "12"
+},
+{
+"x": 565,
+"y": 262,
+"t": "4,113"
+},
+{
+"x": 872,
+"y": 262,
+"t": "1.8 s"
+},
+{
+"x": 1180,
+"y": 262,
+"t": "18"
+},
+{
+"x": 1486,
+"y": 261,
+"t": "Healthy"
+},
+{
+"x": 51,
+"y": 287,
+"t": "Destinations"
+},
+{
+"x": 50,
+"y": 332,
+"t": "Settings"
+},
+{
+"x": 257,
+"y": 339,
+"t": "Topology"
+},
+{
+"x": 1217,
+"y": 338,
+"t": "Updated moments ago - 4 records"
+},
+{
+"x": 1439,
+"y": 338,
+"t": "data_flow_1121"
+},
+{
+"x": 254,
+"y": 378,
+"t": "Connector"
+},
+{
+"x": 778,
+"y": 379,
+"t": "Selector"
+},
+{
+"x": 1009,
+"y": 379,
+"t": "Mode"
+},
+{
+"x": 484,
+"y": 380,
+"t": "Destination"
+},
+{
+"x": 1138,
+"y": 378,
+"t": "Events/hour"
+},
+{
+"x": 1277,
+"y": 380,
+"t": "Last contact"
+},
+{
+"x": 1438,
+"y": 386,
+"t": "Status"
+},
+{
+"x": 1553,
+"y": 386,
+"t": "Healthy"
+},
+{
+"x": 1139,
+"y": 414,
+"t": "1,284"
+},
+{
+"x": 278,
+"y": 414,
+"t": "data_flow_1121"
+},
+{
+"x": 483,
+"y": 414,
+"t": "customer_analytics_warehouse"
+},
+{
+"x": 778,
+"y": 414,
+"t": "jain.aditi@gmail.com"
+},
+{
+"x": 1011,
+"y": 414,
+"t": "Continuous"
+},
+{
+"x": 1278,
+"y": 414,
+"t": "07:59:42"
+},
+{
+"x": 1438,
+"y": 418,
+"t": "Owner"
+},
+{
+"x": 1555,
+"y": 420,
+"t": "Data Platform"
+},
+{
+"x": 1437,
+"y": 450,
+"t": "Destination"
+},
+{
+"x": 1138,
+"y": 455,
+"t": "842"
+},
+{
+"x": 777,
+"y": 455,
+"t": "lucia-torres@gmail.com"
+},
+{
+"x": 1011,
+"y": 456,
+"t": "Continuous"
+},
+{
+"x": 1278,
+"y": 456,
+"t": "07:59:36"
+},
+{
+"x": 274,
+"y": 456,
+"t": "1data_flow_9846"
+},
+{
+"x": 484,
+"y": 456,
+"t": "customer_analytics_warehouse"
+},
+{
+"x": 258,
+"y": 457,
+"t": "[2]"
+},
+{
+"x": 1555,
+"y": 452,
+"t": "customer_analytics_warehouse"
+},
+{
+"x": 1438,
+"y": 484,
+"t": "Selector"
+},
+{
+"x": 1554,
+"y": 485,
+"t": "jain.aditi@gmail.com"
+},
+{
+"x": 1011,
+"y": 496,
+"t": "Continuous"
+},
+{
+"x": 1139,
+"y": 496,
+"t": "650"
+},
+{
+"x": 279,
+"y": 498,
+"t": "Order notifications"
+},
+{
+"x": 483,
+"y": 497,
+"t": "notification_service"
+},
+{
+"x": 779,
+"y": 497,
+"t": "order events"
+},
+{
+"x": 1278,
+"y": 496,
+"t": "07:59:28"
+},
+{
+"x": 1438,
+"y": 516,
+"t": "Sync mode"
+},
+{
+"x": 1556,
+"y": 517,
+"t": "Continuous sync"
+},
+{
+"x": 1139,
+"y": 538,
+"t": "420"
+},
+{
+"x": 257,
+"y": 539,
+"t": "Delivery tracking"
+},
+{
+"x": 484,
+"y": 538,
+"t": "logistics_warehouse"
+},
+{
+"x": 1011,
+"y": 538,
+"t": "Continuous"
+},
+{
+"x": 779,
+"y": 538,
+"t": "shipment events"
+},
+{
+"x": 1277,
+"y": 536,
+"t": "07:59:13"
+},
+{
+"x": 1439,
+"y": 549,
+"t": "Last response"
+},
+{
+"x": 1555,
+"y": 550,
+"t": "200OK.1.8s"
+},
+{
+"x": 1439,
+"y": 597,
+"t": "Activity"
+},
+{
+"x": 1461,
+"y": 618,
+"t": "07:59:42"
+},
+{
+"x": 1461,
+"y": 634,
+"t": "124 events delivered"
+},
+{
+"x": 1462,
+"y": 664,
+"t": "07:58:10"
+},
+{
+"x": 1461,
+"y": 679,
+"t": "checkpoint committed"
+},
+{
+"x": 1461,
+"y": 708,
+"t": "07:56:44"
+},
+{
+"x": 1462,
+"y": 724,
+"t": "18 events retried"
+},
+{
+"x": 1461,
+"y": 754,
+"t": "07:55:02"
+},
+{
+"x": 1461,
+"y": 769,
+"t": "destination acknowledged batch"
+},
+{
+"x": 21,
+"y": 1077,
+"t": "BridgeOps"
+},
+{
+"x": 21,
+"y": 1094,
+"t": "Production workspace"
+},
+{
+"x": 20,
+"y": 1111,
+"t": "build 2026.10.4"
+}
+]

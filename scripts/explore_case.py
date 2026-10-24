@@ -5,7 +5,7 @@ from pathlib import Path
 D = Path(__file__).resolve().parents[1] / "dataset"
 cid = sys.argv[1]
 width = int(sys.argv[2]) if len(sys.argv) > 2 else 230
-req = {r["case_id"]: r for r in csv.DictReader(open(D / "sample_deletion_requests.csv"))}[cid]
+req = {r["case_id"]: r for r in list(csv.DictReader(open(D / "sample_deletion_requests.csv"))) + list(csv.DictReader(open(D / "deletion_requests.csv")))}[cid]
 ids = list(csv.DictReader(open(D / "user_identities.csv")))
 aud = list(csv.DictReader(open(D / "user_audit_log.csv")))
 em = req["email"].lower()
@@ -19,7 +19,8 @@ for a in aud:
         keys |= {a["old_value"].lower(), a["new_value"].lower()}
 print(req)
 print("USER", u["user_id"], u["name"], sorted(keys - {u["email_hash"]}))
-out = {r["case_id"]: r for r in csv.DictReader(open(D / "sample_output.csv"))}[cid]
+gold = {r["case_id"]: r for r in csv.DictReader(open(D / "sample_output.csv"))}
+out = gold.get(cid, {"deletion_status": "(hidden)", "steps_json": "[]"})
 steps = json.loads(out["steps_json"])
 print("EXPECTED", out["deletion_status"])
 res = set()

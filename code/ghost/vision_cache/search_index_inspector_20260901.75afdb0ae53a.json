@@ -1,0 +1,347 @@
+[
+{
+"x": 243,
+"y": 28,
+"t": "Search Console"
+},
+{
+"x": 487,
+"y": 30,
+"t": "email:g.silva76@gmail.com"
+},
+{
+"x": 55,
+"y": 35,
+"t": "Northstar Shop"
+},
+{
+"x": 1634,
+"y": 28,
+"t": "Production Help"
+},
+{
+"x": 244,
+"y": 88,
+"t": "Northstar Shop/Search Console/Customer Search"
+},
+{
+"x": 52,
+"y": 107,
+"t": "Customer Search"
+},
+{
+"x": 245,
+"y": 116,
+"t": "Customer Search"
+},
+{
+"x": 462,
+"y": 112,
+"t": "2 hits"
+},
+{
+"x": 1592,
+"y": 116,
+"t": "Filter"
+},
+{
+"x": 1652,
+"y": 116,
+"t": "Export"
+},
+{
+"x": 1722,
+"y": 116,
+"t": "Actions"
+},
+{
+"x": 51,
+"y": 152,
+"t": "Product Search"
+},
+{
+"x": 243,
+"y": 144,
+"t": "customer_directory_v3/prod-eu"
+},
+{
+"x": 246,
+"y": 184,
+"t": "Results (2)"
+},
+{
+"x": 341,
+"y": 184,
+"t": "Query details"
+},
+{
+"x": 442,
+"y": 184,
+"t": "Shard timing"
+},
+{
+"x": 51,
+"y": 196,
+"t": "Order Search"
+},
+{
+"x": 257,
+"y": 240,
+"t": "Executed"
+},
+{
+"x": 562,
+"y": 240,
+"t": "Latency"
+},
+{
+"x": 873,
+"y": 240,
+"t": "Index"
+},
+{
+"x": 1181,
+"y": 240,
+"t": "Environment"
+},
+{
+"x": 51,
+"y": 242,
+"t": "Indexes"
+},
+{
+"x": 1490,
+"y": 240,
+"t": "Shard total"
+},
+{
+"x": 562,
+"y": 261,
+"t": "184ms"
+},
+{
+"x": 257,
+"y": 262,
+"t": "01Sep202606:00:14UTC"
+},
+{
+"x": 874,
+"y": 262,
+"t": "customer_directory_v3"
+},
+{
+"x": 1179,
+"y": 261,
+"t": "prod-eu"
+},
+{
+"x": 1487,
+"y": 261,
+"t": "184ms"
+},
+{
+"x": 52,
+"y": 287,
+"t": "Cluster health"
+},
+{
+"x": 51,
+"y": 332,
+"t": "Slow queries"
+},
+{
+"x": 258,
+"y": 340,
+"t": "Results (2)"
+},
+{
+"x": 1219,
+"y": 340,
+"t": "Updated moments ago - 2 records"
+},
+{
+"x": 1439,
+"y": 340,
+"t": "Rawdocument\u00b7search_428"
+},
+{
+"x": 637,
+"y": 379,
+"t": "Email"
+},
+{
+"x": 462,
+"y": 380,
+"t": "Display name"
+},
+{
+"x": 901,
+"y": 379,
+"t": "Customer reference"
+},
+{
+"x": 1143,
+"y": 380,
+"t": "Score"
+},
+{
+"x": 1242,
+"y": 380,
+"t": "Last indexed"
+},
+{
+"x": 1438,
+"y": 385,
+"t": "_index"
+},
+{
+"x": 1555,
+"y": 386,
+"t": "customer_directory_v3"
+},
+{
+"x": 901,
+"y": 414,
+"t": "user_13"
+},
+{
+"x": 1143,
+"y": 414,
+"t": "9.84"
+},
+{
+"x": 276,
+"y": 414,
+"t": "search_428"
+},
+{
+"x": 637,
+"y": 414,
+"t": "g.silva76@gmail.com"
+},
+{
+"x": 463,
+"y": 414,
+"t": "Gabriel Silva"
+},
+{
+"x": 1242,
+"y": 414,
+"t": "05:58:21UTC"
+},
+{
+"x": 1437,
+"y": 418,
+"t": "_id"
+},
+{
+"x": 1553,
+"y": 419,
+"t": "search_428"
+},
+{
+"x": 1439,
+"y": 451,
+"t": "display_name"
+},
+{
+"x": 1143,
+"y": 456,
+"t": "4.12"
+},
+{
+"x": 273,
+"y": 456,
+"t": " search_1874"
+},
+{
+"x": 1242,
+"y": 456,
+"t": "05:55:03UTC"
+},
+{
+"x": 637,
+"y": 456,
+"t": "g.silva76.jr@gmail.com"
+},
+{
+"x": 1555,
+"y": 452,
+"t": "Gabriel Silva"
+},
+{
+"x": 1437,
+"y": 483,
+"t": "email"
+},
+{
+"x": 1553,
+"y": 484,
+"t": "g.silva76@gmail.com"
+},
+{
+"x": 1437,
+"y": 516,
+"t": "customer_reference user_13"
+},
+{
+"x": 1438,
+"y": 548,
+"t": "indexed_at"
+},
+{
+"x": 1555,
+"y": 549,
+"t": "2026-09-01T05:58:21Z"
+},
+{
+"x": 1437,
+"y": 596,
+"t": "Activity"
+},
+{
+"x": 1460,
+"y": 618,
+"t": "06:00:14"
+},
+{
+"x": 1461,
+"y": 634,
+"t": "email:g.silva76@gmail.com \u00b7 2 hits"
+},
+{
+"x": 1460,
+"y": 662,
+"t": "05:42:03"
+},
+{
+"x": 1460,
+"y": 679,
+"t": "customer_reference:user_9842.1hit"
+},
+{
+"x": 1462,
+"y": 709,
+"t": "05:31:18"
+},
+{
+"x": 1461,
+"y": 724,
+"t": "display_name:'\"Aditi Jain\" - 1 hit"
+},
+{
+"x": 21,
+"y": 1028,
+"t": "Search Console"
+},
+{
+"x": 19,
+"y": 1044,
+"t": "Production workspace"
+},
+{
+"x": 21,
+"y": 1062,
+"t": "build 2026.10.4"
+}
+]

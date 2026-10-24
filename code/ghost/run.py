@@ -9,8 +9,10 @@ from pathlib import Path
 
 from .data import Dataset
 from .engine import Auditor
+from .pipeline import audit_case, build_graph
 from .scoring import load, score
 from .steps import to_json
+from .validate import case_key
 
 
 def run(dataset: Path, input_csv: str, output: Path | None = None, verbose=False):
@@ -18,9 +20,10 @@ def run(dataset: Path, input_csv: str, output: Path | None = None, verbose=False
     sample, evalset = ds.requests("sample_deletion_requests.csv"), ds.requests("deletion_requests.csv")
     cases = ds.requests(input_csv)
     aud = Auditor(ds, sample + evalset)
+    graph = build_graph(aud)
     rows, results = [], {}
-    for c in sorted(cases, key=lambda c: c["case_id"]):
-        r = aud.audit(c["case_id"])
+    for c in sorted(cases, key=lambda c: case_key(c["case_id"])):
+        r = audit_case(graph, c["case_id"])
         results[c["case_id"]] = r
         rows.append({"case_id": c["case_id"], "deletion_status": r.status, "steps_json": json.dumps(to_json(r.steps), separators=(",", ":"))})
     if output:
